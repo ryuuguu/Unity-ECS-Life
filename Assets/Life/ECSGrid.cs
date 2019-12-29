@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 public class ECSGrid : MonoBehaviour {
+    public bool makeDebugComponents = false;
     public Vector2Int size = new Vector2Int(10,10);
     public float worldSize = 10f;
     public static float zLive = -1;
@@ -41,6 +42,11 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 _cells[i, j] = instance;
+                if (makeDebugComponents) {
+                    entityManager.AddComponentData(instance, new DebugIJ() { pos = new int2(i,j)});
+                    entityManager.AddComponentData(instance, new DebugIndex() { index = -1 });
+
+                }
             }
         }
         for (int i = 1; i < size.x+1; i++) {
@@ -49,11 +55,15 @@ public class ECSGrid : MonoBehaviour {
                 if ((i + j) % 2 == 0) {
                     var position = new float3((i - 1) * _scale.x + _offset.x, (j - 1) * _scale.y + _offset.y, zLive)*worldSize;
                     entityManager.SetComponentData(instance, new Translation {Value = position});
+                    entityManager.AddComponentData(instance, new Live { value = 1});
+                    entityManager.AddComponentData(instance, new NextState() { value = 1});
+                } else {
+                    entityManager.AddComponentData(instance, new NextState() {value = 0});
                 }
-                entityManager.AddComponentData(instance, new NextState() { value = 0});
+
                 entityManager.AddComponentData(instance, new Neighbors() {
                     nw = _cells[i - 1, j - 1], n = _cells[i - 1, j], ne =  _cells[i - 1, j+1],
-                    w = _cells[i - 1, j], e = _cells[i, j + 1],
+                    w = _cells[i , j-1], e = _cells[i, j + 1],
                     sw = _cells[i + 1, j - 1], s = _cells[i + 1, j], se =  _cells[i + 1, j + 1]
                 });
             }
