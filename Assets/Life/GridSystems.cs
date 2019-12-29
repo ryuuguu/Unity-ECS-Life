@@ -6,28 +6,21 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 /// <summary>
-/// calc next generatio values and ut in next state
+/// calc next generation values and put in nextState
 /// what is causing burst error ? 
 /// </summary>
 [AlwaysSynchronizeSystem]
-public class nextGeneration : JobComponentSystem
+public class GenerateNextStateSystem : JobComponentSystem
 {
-    
     protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
+    { 
         int[] stay = ECSGrid.stay;
         int[] born = ECSGrid.born;
-            
-       var liveLookup =  GetComponentDataFromEntity<Live>() ;
-        
+        var liveLookup =  GetComponentDataFromEntity<Live>() ;
         Entities
             .WithoutBurst()
-            .ForEach((ref NextState nextState, in Live live, in Neighbors neighbors) =>
-            {
-                
+            .ForEach((ref NextState nextState, in Live live, in Neighbors neighbors) => {
                 int numLiveNeighbors = 0;
-
-                // check current life status of all neighbors
                 for (int i = 0; i < 9; i++) {
                     numLiveNeighbors += liveLookup[neighbors.nw].value;
                     numLiveNeighbors += liveLookup[neighbors.n].value;
@@ -38,11 +31,26 @@ public class nextGeneration : JobComponentSystem
                     numLiveNeighbors += liveLookup[neighbors.s].value;
                     numLiveNeighbors += liveLookup[neighbors.se].value;
                 }
-
                 nextState.value = math.select(stay[numLiveNeighbors], born[numLiveNeighbors], live.value== 1);
+            }).Run();
+        return default;
+    }
+}
+
+public class UpdateLiveSystem : JobComponentSystem
+{
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    { 
+        float zDead = ECSGrid.zDead;
+        float zLive = ECSGrid.zLive;
+        Entities
+            .WithoutBurst()
+            .ForEach((ref Live live, ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
+                live.value = nextState.value;
+                translation.Value = new float3(translation.Value.x, translation.Value.x,
+                    math.select(zLive, zDead, live.value == 1));
 
             }).Run();
-
         return default;
     }
 }

@@ -148,7 +148,7 @@ Transform:
   m_GameObject: {fileID: 293954019}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 11, y: 11, z: 1}
+  m_LocalScale: {x: 12, y: 12, z: 1}
   m_Children: []
   m_Father: {fileID: 1678352934}
   m_RootOrder: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 10, y: 10}
+  size: {x: 20, y: 20}
   worldSize: 10
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
