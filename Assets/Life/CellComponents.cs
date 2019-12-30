@@ -35,4 +35,6 @@ public struct DebugIJ : IComponentData {
 
 public struct DebugIndex : IComponentData {
     public int index;
+    public int countNext;
+    public int countLive;
 }

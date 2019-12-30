@@ -4,21 +4,26 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
 
 /// <summary>
 /// calc next generation values and put in nextState
 /// what is causing burst error ? 
 /// </summary>
+
 [AlwaysSynchronizeSystem]
 public class GenerateNextStateSystem : JobComponentSystem
 {
+    
+    //[ReadOnly] public ComponentDataFromEntity<Live> liveLookupX;
+    
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     { 
         int[] stay = ECSGrid.stay;
         int[] born = ECSGrid.born;
-        //stay[2] = stay[3] = 1;
-        //born[3] = 1;
-        var liveLookup =  GetComponentDataFromEntity<Live>() ;
+
+        var liveLookup = GetComponentDataFromEntity<Live>(); 
+        //var liveLookup = liveLookupX ;
         Entities
             .WithoutBurst()
             .ForEach((ref NextState nextState, ref DebugIndex debugIndex, in Live live, in Neighbors neighbors) => {
@@ -34,7 +39,9 @@ public class GenerateNextStateSystem : JobComponentSystem
                 numLiveNeighbors += liveLookup[neighbors.se].value;
             
                 debugIndex.index = numLiveNeighbors;
-                nextState.value = math.select(stay[numLiveNeighbors], born[numLiveNeighbors], live.value== 1);
+                debugIndex.countNext += 1;
+                //Note math.Select(falseValue, trueValue, boolSelector)
+                nextState.value = math.select( born[numLiveNeighbors],stay[numLiveNeighbors], live.value== 1);
             }).Run();
         return default;
     }
@@ -44,6 +51,7 @@ public class GenerateNextStateSystem : JobComponentSystem
 /// update Live from NextState and set location 
 /// </summary>
 
+[AlwaysSynchronizeSystem]
 public class UpdateLiveSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -52,11 +60,11 @@ public class UpdateLiveSystem : JobComponentSystem
         float zLive = ECSGrid.zLive;
         Entities
             //.WithoutBurst()
-            .ForEach((ref Live live, ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
+            .ForEach((ref Live live, ref DebugIndex debugIndex, ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
                 live.value = nextState.value;
-                translation.Value = new float3(translation.Value.x, translation.Value.x,
+                translation.Value = new float3(translation.Value.x, translation.Value.y,
                     math.select( zDead,zLive, live.value == 1));
-
+                debugIndex.countLive += 1;
             }).Run();
         return default;
     }
