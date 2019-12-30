@@ -18,6 +18,10 @@ public struct NextState : IComponentData {
     public int value;
 }
 
+
+//this might be better as an array but arrays are not blitable
+// components fields must be blitable
+// maybe dynamics buffers would be faster but probably not
 public struct Neighbors : IComponentData {
     public Entity nw;
     public Entity n;

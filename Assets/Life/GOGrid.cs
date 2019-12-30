@@ -1,7 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// GameObject Grid
+/// this is not a good OO design
+/// it is designed to show what the ECS version is doing in way that is readable
+/// for people who do ECS yet
+/// </summary>
 public class GOGrid : MonoBehaviour {
     public Vector2Int size = new Vector2Int(10,10);
     public float zLive = -1;
@@ -29,7 +34,7 @@ public class GOGrid : MonoBehaviour {
             }
         }
         RPentonomio((size+2*Vector2Int.one)/2);
-        stay[3] = stay[4] = true; // include self in count
+        stay[3] = stay[4] = true; // includes self in count
         born[3] = true;
     }
 
@@ -44,6 +49,8 @@ public class GOGrid : MonoBehaviour {
     }
     
     void Update() {
+        
+        //this is done by GenerateNextStateSystem in ECS version
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
                 int count = 0;
@@ -56,6 +63,7 @@ public class GOGrid : MonoBehaviour {
             }
         }
 
+        //this is done by UpdateLiveSystem  in ECS version
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
                 _cells[i, j].live = _cells[i, j].nextState;
