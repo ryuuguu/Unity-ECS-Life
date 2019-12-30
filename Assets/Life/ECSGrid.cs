@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 public class ECSGrid : MonoBehaviour {
-    public bool makeDebugComponents = false;
+    //public bool makeDebugComponents = false;
     public Vector2Int size = new Vector2Int(10,10);
     public float worldSize = 10f;
     public static float zLive = -1;
@@ -42,11 +42,13 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 _cells[i, j] = instance;
+                /*
                 if (makeDebugComponents) {
                     entityManager.AddComponentData(instance, new DebugIJ() { pos = new int2(i,j)});
                     entityManager.AddComponentData(instance, new DebugIndex() { index = -1 });
 
                 }
+                */
             }
         }
         entityManager.DestroyEntity(entity);

@@ -26,7 +26,8 @@ public class GenerateNextStateSystem : JobComponentSystem
         //var liveLookup = liveLookupX ;
         Entities
             .WithoutBurst()
-            .ForEach((ref NextState nextState, ref DebugIndex debugIndex, in Live live, in Neighbors neighbors) => {
+            //.ForEach((ref NextState nextState, ref DebugIndex debugIndex, in Live live, in Neighbors neighbors) => {
+            .ForEach((ref NextState nextState, in Live live, in Neighbors neighbors) => {
                 int numLiveNeighbors = 0;
                 
                 numLiveNeighbors += liveLookup[neighbors.nw].value;
@@ -38,8 +39,8 @@ public class GenerateNextStateSystem : JobComponentSystem
                 numLiveNeighbors += liveLookup[neighbors.s].value;
                 numLiveNeighbors += liveLookup[neighbors.se].value;
             
-                debugIndex.index = numLiveNeighbors;
-                debugIndex.countNext += 1;
+                //debugIndex.index = numLiveNeighbors;
+                //debugIndex.countNext += 1;
                 //Note math.Select(falseValue, trueValue, boolSelector)
                 nextState.value = math.select( born[numLiveNeighbors],stay[numLiveNeighbors], live.value== 1);
             }).Run();
@@ -60,11 +61,12 @@ public class UpdateLiveSystem : JobComponentSystem
         float zLive = ECSGrid.zLive;
         Entities
             //.WithoutBurst()
-            .ForEach((ref Live live, ref DebugIndex debugIndex, ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
+            //.ForEach((ref Live live, ref DebugIndex debugIndex, ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
+            .ForEach((ref Live live,  ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
                 live.value = nextState.value;
                 translation.Value = new float3(translation.Value.x, translation.Value.y,
                     math.select( zDead,zLive, live.value == 1));
-                debugIndex.countLive += 1;
+                //debugIndex.countLive += 1;
             }).Run();
         return default;
     }

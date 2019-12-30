@@ -312,8 +312,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  makeDebugComponents: 0
-  size: {x: 100, y: 100}
+  makeDebugComponents: 1
+  size: {x: 10, y: 10}
   worldSize: 10
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
