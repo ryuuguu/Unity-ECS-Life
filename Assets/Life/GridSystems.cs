@@ -30,7 +30,7 @@ public class GenerateNextStateSystem : JobComponentSystem
         //var liveLookup = liveLookupX ;
         Entities
             // Burst error about class that I do not understand    
-            //.WithoutBurst()
+            .WithoutBurst()
             // for debugging only
             //.ForEach((ref NextState nextState, ref DebugIndex debugIndex, in Live live, in Neighbors neighbors) => {
             .ForEach((ref NextState nextState, in Live live, in Neighbors neighbors) => {
