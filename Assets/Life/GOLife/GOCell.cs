@@ -12,5 +12,4 @@ public class GOCell : MonoBehaviour {
             _live = value;
         }
     }
-
 }

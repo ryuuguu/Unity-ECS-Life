@@ -17,6 +17,7 @@ public class GOGrid : MonoBehaviour {
     GOCell[,] _cells;
     public bool[] stay = new bool[10];
     public bool[] born = new bool[10];
+    
     void Start() {
         _scale = Vector2.one / size;
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -39,7 +40,6 @@ public class GOGrid : MonoBehaviour {
     }
 
     void RPentonomio(Vector2Int center) {
-        
         _cells[center.x, center.y].live = true;
         _cells[center.x, center.y+1].live = true;
         _cells[center.x+1, center.y+1].live = true;
@@ -49,7 +49,6 @@ public class GOGrid : MonoBehaviour {
     }
     
     void Update() {
-        
         //this is done by GenerateNextStateSystem in ECS version
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
