@@ -22,16 +22,10 @@ public class ECSGrid : MonoBehaviour {
     public static float zLive = -1;
     public static float zDead = 1;
     
-    void Awake() {
-        stay[2] = stay[3] = 1; // does NOT include self in count
-        born[3] = 1;
-    }
-    
     void Start() {
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        
         
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -63,7 +57,6 @@ public class ECSGrid : MonoBehaviour {
                     sw = _cells[i + 1, j - 1], s = _cells[i + 1, j], se =  _cells[i + 1, j + 1]
                 });
                 
-                
                 //another good test pattern seeing the edges of grid
                 /*
                 if ((i + j) % 2 == 0) {
@@ -73,7 +66,8 @@ public class ECSGrid : MonoBehaviour {
             }
         }
         RPentonomio((size+2*Vector2Int.one)/2, entityManager);
-        
+        stay[2] = stay[3] = 1; // does NOT include self in count
+        born[3] = 1;
     }
 
     private void SetLive(int i, int j, EntityManager entityManager) {
@@ -92,6 +86,4 @@ public class ECSGrid : MonoBehaviour {
         SetLive(center.x, center.y-1, entityManager);
         SetLive(center.x-1, center.y, entityManager);
     }
-    
-    
 }
