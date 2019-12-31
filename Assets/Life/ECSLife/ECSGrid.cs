@@ -39,11 +39,6 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 _cells[i, j] = instance;
-                /*
-                // for debugging only
-                entityManager.AddComponentData(instance, new DebugIJ() { pos = new int2(i,j)});
-                entityManager.AddComponentData(instance, new DebugIndex() { index = -1 });
-                */
             }
         }
         entityManager.DestroyEntity(entity);
@@ -57,7 +52,7 @@ public class ECSGrid : MonoBehaviour {
                     sw = _cells[i + 1, j - 1], s = _cells[i + 1, j], se =  _cells[i + 1, j + 1]
                 });
                 
-                //another good test pattern seeing the edges of grid
+                //another good test pattern for seeing the edges of grid
                 /*
                 if ((i + j) % 2 == 0) {
                     SetLive(i, j, entityManager);

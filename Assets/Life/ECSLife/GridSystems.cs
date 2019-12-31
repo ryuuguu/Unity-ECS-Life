@@ -4,6 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Rendering;
 
 
 public class GenerateNextStateSystem : JobComponentSystem
@@ -13,7 +14,7 @@ public class GenerateNextStateSystem : JobComponentSystem
     struct SetLive : IJobForEach<NextState, Live, Neighbors>
     {
         [ReadOnly]public ComponentDataFromEntity<Live> liveLookup; 
-        public void Execute(ref NextState nextState,[ReadOnly] ref Live live,[ReadOnly] ref  Neighbors neighbors){
+        public void Execute(ref NextState nextState, [ReadOnly] ref Live live,[ReadOnly] ref  Neighbors neighbors){
             
             int numLiveNeighbors = 0;
                 
@@ -27,16 +28,13 @@ public class GenerateNextStateSystem : JobComponentSystem
             numLiveNeighbors += liveLookup[neighbors.se].value;
             
             //Note math.Select(falseValue, trueValue, boolSelector)
-            
-            // hack to avoid using NativeArray yet
-            //{0,0,1,1,0,0,0,0,0}
-            //{0,0,0,1,0,0,0,0,0};
+            // did not want to pass in arrays so change to
+            // 3 selects
             int bornValue = math.select(0, 1, numLiveNeighbors == 3);
             int stayValue = math.select(0, 1, numLiveNeighbors == 2);
             stayValue = math.select(stayValue, 1, numLiveNeighbors == 3);
             
             nextState.value = math.select( bornValue,stayValue, live.value== 1);
-            
         }
         
     }
@@ -69,7 +67,7 @@ public class UpdateLiveSystem : JobComponentSystem
                 live.value = nextState.value;
                 translation.Value = new float3(translation.Value.x, translation.Value.y,
                     math.select( zDead,zLive, live.value == 1));
-            }).Schedule(inputDeps);
+             }).Schedule(inputDeps);
         return job;
     }
 }
