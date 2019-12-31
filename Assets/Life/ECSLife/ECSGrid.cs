@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,6 +11,7 @@ using Unity.Transforms;
 public class ECSGrid : MonoBehaviour {
     public Vector2Int size = new Vector2Int(10,10);
     public float worldSize = 10f;
+    public Color32 cellColor;
     
     public Transform holder;
     public GameObject prefabCell;
@@ -19,6 +22,11 @@ public class ECSGrid : MonoBehaviour {
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
     public static List<RenderMesh> renderMeshs = new List<RenderMesh>();
+    public static NativeArray<int> nativeImage;
+    public static int sizeX;
+    public static int sizeY;
+    public static int colorInt;
+    
 
 
     public float zDeadSetter;
@@ -28,6 +36,10 @@ public class ECSGrid : MonoBehaviour {
     public static float zDead = 1;
     
     void Start() {
+        sizeX = size.x;
+        sizeY = size.y;
+        nativeImage = new NativeArray<int>(sizeX*sizeY,Allocator.Persistent);
+        
         zDead = zDeadSetter;
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
@@ -75,16 +87,23 @@ public class ECSGrid : MonoBehaviour {
         born[3] = 1;
     }
 
+    public static Color32[] NativeArrayToColor32Array(NativeArray<int> data) {
+        Color32[] result = new Color32[data.Length];
+        for (int i = 0; i < data.Length; i++) {
+           var bytes =  BitConverter.GetBytes(nativeImage[i]);
+           result[i] = new Color32(bytes[0],bytes[1], bytes[2], bytes[3]);
+        }
+        return result;
+    }
+    
     private void SetLive(int i, int j, EntityManager entityManager) {
         var instance = _cells[i, j];
             var position = new float3((i - 1) * _scale.x + _offset.x, (j - 1) * _scale.y + _offset.y, zLive) * worldSize;
             entityManager.SetComponentData(instance, new Translation {Value = position});
             entityManager.SetComponentData(instance, new Live {value = 1});
             entityManager.SetComponentData(instance, new NextState() {value = 1});
-            //entityManager.AddSharedComponentData(instance, renderMeshs[0]);
-            
+           
         
-
     }
 
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
