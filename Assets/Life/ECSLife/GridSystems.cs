@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -19,6 +18,7 @@ public class GenerateNextStateSystem : JobComponentSystem
     
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     { 
+        
         // did not use ECSGrid.stay & ECSGrid.born because they caused a Burst error
         // born[numLiveNeighbors] if born is a pointer to ECSGrid.born this cause burst error
         int[] stay = new int[9];
