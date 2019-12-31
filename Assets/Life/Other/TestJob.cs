@@ -26,7 +26,7 @@ public class RotationSpeedSystem : JobComponentSystem
     {
         var job = new RotationSpeedJob()
         {
-            DeltaTime = Time.deltaTime
+            DeltaTime = Time.DeltaTime
         };
         return job.Schedule(this, inputDependencies);
     }
