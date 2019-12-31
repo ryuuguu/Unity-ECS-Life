@@ -55,7 +55,7 @@ public class GenerateNextStateSystem : JobComponentSystem
 /// update Live from NextState and set location 
 /// </summary>
 
-//[AlwaysSynchronizeSystem]
+[AlwaysSynchronizeSystem]
 public class UpdateLiveSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -63,7 +63,8 @@ public class UpdateLiveSystem : JobComponentSystem
         float zDead = ECSGrid.zDead;
         float zLive = ECSGrid.zLive;
         var job = Entities
-             .ForEach((ref Live live,  ref Translation translation, in  NextState nextState, in Neighbors neighbor) => {
+             .WithChangeFilter<NextState>()
+             .ForEach((ref Live live,  ref Translation translation, in  NextState nextState) => {
                 live.value = nextState.value;
                 translation.Value = new float3(translation.Value.x, translation.Value.y,
                     math.select( zDead,zLive, live.value == 1));

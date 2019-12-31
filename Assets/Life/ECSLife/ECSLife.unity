@@ -317,8 +317,11 @@ MonoBehaviour:
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
     type: 3}
+  prefabRenderMesh: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
+    type: 3}
   _offset: {x: 0, y: 0}
   _scale: {x: 0, y: 0}
+  zDeadSetter: 2000
 --- !u!4 &1678352934
 Transform:
   m_ObjectHideFlags: 0

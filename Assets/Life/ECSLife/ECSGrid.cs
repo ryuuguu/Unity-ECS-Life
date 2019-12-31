@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 public class ECSGrid : MonoBehaviour {
@@ -11,21 +12,30 @@ public class ECSGrid : MonoBehaviour {
     
     public Transform holder;
     public GameObject prefabCell;
+    public GameObject prefabRenderMesh;
     public Vector2 _offset;
     public Vector2 _scale ;
     Entity[,] _cells;
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
+    public static List<RenderMesh> renderMeshs = new List<RenderMesh>();
 
+
+    public float zDeadSetter;
     //used to move an entity behind the holder image when it is not live
     // changing its color to black would nicer but that is only available in HDRP so far
     public static float zLive = -1;
     public static float zDead = 1;
     
     void Start() {
+        zDead = zDeadSetter;
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        
+        var entityRenderMesh = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
+
+        entityManager.GetAllUniqueSharedComponentData<RenderMesh>(renderMeshs);
         
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -71,7 +81,10 @@ public class ECSGrid : MonoBehaviour {
             entityManager.SetComponentData(instance, new Translation {Value = position});
             entityManager.SetComponentData(instance, new Live {value = 1});
             entityManager.SetComponentData(instance, new NextState() {value = 1});
+            //entityManager.AddSharedComponentData(instance, renderMeshs[0]);
+            
         
+
     }
 
     void RPentonomio(Vector2Int center, EntityManager entityManager) {

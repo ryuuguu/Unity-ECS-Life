@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 9178653641751187752}
   - component: {fileID: 9178653641751187753}
   m_Layer: 0
-  m_Name: Cell
+  m_Name: GOCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -93,3 +93,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshRenderer: {fileID: 9178653641751187752}
+  nextState: 0
