@@ -7,12 +7,11 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine.UI;
 
 public class ECSGrid : MonoBehaviour {
     public Vector2Int size = new Vector2Int(10,10);
     public float worldSize = 10f;
-    public Color32 cellColor;
-    
     public Transform holder;
     public GameObject prefabCell;
     public GameObject prefabRenderMesh;
@@ -22,12 +21,10 @@ public class ECSGrid : MonoBehaviour {
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
     public static List<RenderMesh> renderMeshs = new List<RenderMesh>();
-    public static NativeArray<int> nativeImage;
+    public static NativeArray<Color32> nativeImage;
     public static int sizeX;
     public static int sizeY;
-    public static int colorInt;
     
-
 
     public float zDeadSetter;
     //used to move an entity behind the holder image when it is not live
@@ -38,16 +35,13 @@ public class ECSGrid : MonoBehaviour {
     void Start() {
         sizeX = size.x;
         sizeY = size.y;
-        nativeImage = new NativeArray<int>(sizeX*sizeY,Allocator.Persistent);
         
         zDead = zDeadSetter;
+        
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
-        var entityRenderMesh = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
-
-        entityManager.GetAllUniqueSharedComponentData<RenderMesh>(renderMeshs);
         
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -60,6 +54,7 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.SetComponentData(instance, new Translation {Value = position});
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
+                
                 _cells[i, j] = instance;
             }
         }
@@ -86,15 +81,6 @@ public class ECSGrid : MonoBehaviour {
         stay[2] = stay[3] = 1; // does NOT include self in count
         born[3] = 1;
     }
-
-    public static Color32[] NativeArrayToColor32Array(NativeArray<int> data) {
-        Color32[] result = new Color32[data.Length];
-        for (int i = 0; i < data.Length; i++) {
-           var bytes =  BitConverter.GetBytes(nativeImage[i]);
-           result[i] = new Color32(bytes[0],bytes[1], bytes[2], bytes[3]);
-        }
-        return result;
-    }
     
     private void SetLive(int i, int j, EntityManager entityManager) {
         var instance = _cells[i, j];
@@ -102,8 +88,6 @@ public class ECSGrid : MonoBehaviour {
             entityManager.SetComponentData(instance, new Translation {Value = position});
             entityManager.SetComponentData(instance, new Live {value = 1});
             entityManager.SetComponentData(instance, new NextState() {value = 1});
-           
-        
     }
 
     void RPentonomio(Vector2Int center, EntityManager entityManager) {

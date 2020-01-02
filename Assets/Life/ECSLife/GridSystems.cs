@@ -10,9 +10,15 @@ using Unity.Rendering;
 public class GenerateNextStateSystem : JobComponentSystem
 {
     
+    
+    
+    // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
+    // read only variable is needed
     [BurstCompile]
-    struct SetLive : IJobForEach<NextState, Live, Neighbors>
-    {
+    struct SetLive : IJobForEach<NextState, Live, Neighbors> {
+        // liveLookup is a pointer to a native array of live components indexed by entity
+        // since allows access outside set of entities being handled a single job o thread that is running 
+        // concurrently with other threads accessing the same native array it must be marked read only 
         [ReadOnly]public ComponentDataFromEntity<Live> liveLookup; 
         public void Execute(ref NextState nextState, [ReadOnly] ref Live live,[ReadOnly] ref  Neighbors neighbors){
             
@@ -36,10 +42,10 @@ public class GenerateNextStateSystem : JobComponentSystem
             
             nextState.value = math.select( bornValue,stayValue, live.value== 1);
         }
-        
     }
     
     protected override JobHandle OnUpdate(JobHandle inputDeps) { 
+        // make a native array of live components indexed by entity
         ComponentDataFromEntity<Live> statuses = GetComponentDataFromEntity<Live>();
         
         SetLive neighborCounterJob = new SetLive() {
@@ -55,14 +61,23 @@ public class GenerateNextStateSystem : JobComponentSystem
 /// update Live from NextState and set location 
 /// </summary>
 
+//to move the UpdateLiveSystem to worker threads is very easy
+// Add "var job = " infront of the Entities statement.
+// change the .Run() at the end of the statement to .Schedule(inputDeps)
+// this is what tells the job to be schedules on worker threads, 
+// and to return a JobHandle 
+// finally return the JobHandle job.
+
 [AlwaysSynchronizeSystem]
+[BurstCompile]
 public class UpdateLiveSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     { 
         float zDead = ECSGrid.zDead;
         float zLive = ECSGrid.zLive;
-        var job = Entities
+        var job = 
+            Entities
              .WithChangeFilter<NextState>()
              .ForEach((ref Live live,  ref Translation translation, in  NextState nextState) => {
                 live.value = nextState.value;
