@@ -54,7 +54,7 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.SetComponentData(instance, new Translation {Value = position});
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
-                
+                entityManager.AddComponentData(instance, new debugFilterCount { Value = 0});
                 _cells[i, j] = instance;
             }
         }

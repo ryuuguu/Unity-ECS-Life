@@ -391,13 +391,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 400, y: 400}
+  size: {x: 200, y: 200}
   worldSize: 10
-  cellColorInput:
-    serializedVersion: 2
-    rgba: 4278253048
-  gridRenderer: {fileID: 135236672}
-  gridTexture: {fileID: 0}
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
     type: 3}

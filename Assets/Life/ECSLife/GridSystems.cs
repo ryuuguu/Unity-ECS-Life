@@ -70,6 +70,24 @@ public class GenerateNextStateSystem : JobComponentSystem
 
 [AlwaysSynchronizeSystem]
 [BurstCompile]
+public class UpdateMarkChangeSystem : JobComponentSystem
+{
+    
+    struct MarkChange: IJobForEachWithEntity<Live, NextState> {
+        public void Execute(Entity entity, int index, ref Live live, [ReadOnly] ref  NextState nextState) {
+            live.value = nextState.value;
+        }
+    }
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    {
+        var markChange = new MarkChange();
+        JobHandle jobHandle = markChange.Schedule(this, inputDeps);
+        return jobHandle;
+    }
+}
+
+[AlwaysSynchronizeSystem]
+[BurstCompile]
 public class UpdateLiveSystem : JobComponentSystem
 {
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -78,12 +96,13 @@ public class UpdateLiveSystem : JobComponentSystem
         float zLive = ECSGrid.zLive;
         var job = 
             Entities
-             .WithChangeFilter<NextState>()
-             .ForEach((ref Live live,  ref Translation translation, in  NextState nextState) => {
-                live.value = nextState.value;
-                translation.Value = new float3(translation.Value.x, translation.Value.y,
-                    math.select( zDead,zLive, live.value == 1));
-             }).Schedule(inputDeps);
+                .WithChangeFilter<NextState>()
+                .ForEach((ref Live live,  ref Translation translation,ref debugFilterCount debugFilterCount, in  NextState nextState) => {
+                    translation.Value = new float3(translation.Value.x, translation.Value.y,
+                        math.select( zDead,zLive, live.value == 1));
+                    debugFilterCount.Value++;
+
+                }).Schedule(inputDeps);
         return job;
     }
 }

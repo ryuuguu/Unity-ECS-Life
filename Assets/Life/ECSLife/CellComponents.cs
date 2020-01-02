@@ -32,3 +32,10 @@ public struct Neighbors : IComponentData {
     public Entity s;
     public Entity se;
 }
+
+
+public struct ChangedTag : IComponentData { }
+
+public struct debugFilterCount : IComponentData {
+    public int Value;
+}
