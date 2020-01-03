@@ -9,9 +9,6 @@ using Unity.Rendering;
 
 public class GenerateNextStateSystem : JobComponentSystem
 {
-    
-    
-    
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
     // read only variable is needed
     [BurstCompile]
@@ -58,50 +55,68 @@ public class GenerateNextStateSystem : JobComponentSystem
 }
 
 /// <summary>
-/// update Live from NextState and set location 
+/// update Live from NextState and add ChangedTag
 /// </summary>
 
-//to move the UpdateLiveSystem to worker threads is very easy
-// Add "var job = " infront of the Entities statement.
-// change the .Run() at the end of the statement to .Schedule(inputDeps)
-// this is what tells the job to be schedules on worker threads, 
-// and to return a JobHandle 
-// finally return the JobHandle job.
 
 [AlwaysSynchronizeSystem]
 [BurstCompile]
-public class UpdateMarkChangeSystem : JobComponentSystem
-{
+public class UpdateMarkChangeSystem : JobComponentSystem {
+    protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
     
-    struct MarkChange: IJobForEachWithEntity<Live, NextState> {
-        public void Execute(Entity entity, int index, ref Live live, [ReadOnly] ref  NextState nextState) {
-            live.value = nextState.value;
-        }
+    protected override void OnCreate() {
+        base.OnCreate();
+        // Find the ECB system once and store it for later usage
+        m_EndSimulationEcbSystem = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
-    {
-        var markChange = new MarkChange();
-        JobHandle jobHandle = markChange.Schedule(this, inputDeps);
+    
+    protected override JobHandle OnUpdate(JobHandle inputDeps) {
+        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+        JobHandle jobHandle = Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Live live, in  NextState nextState)=> {
+                if (live.value != nextState.value) {
+                    ecb.AddComponent<ChangedTag>(entityInQueryIndex, entity);
+                }
+                live.value = nextState.value;
+            }).Schedule( inputDeps);
+        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
         return jobHandle;
     }
 }
 
+/// <summary>
+/// set location on cells marked as changed and remove ChangedTag
+/// </summary>
+
+// changed the translation of mesh might stop the rendering system from making static optimizations
+// so .WithAll<ChangedTag>() limits changes to only mesh whose lives status changed
+//
+
 [AlwaysSynchronizeSystem]
 [BurstCompile]
-public class UpdateLiveSystem : JobComponentSystem
-{
+public class UpdateMoveChangedSystem : JobComponentSystem {
+    protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
+    
+    protected override void OnCreate() {
+        base.OnCreate();
+        // Find the ECB system once and store it for later usage
+        m_EndSimulationEcbSystem = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     { 
         float zDead = ECSGrid.zDead;
         float zLive = ECSGrid.zLive;
+        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
         var job = 
             Entities
-                .WithChangeFilter<NextState>()
-                .ForEach((ref Live live,  ref Translation translation,ref debugFilterCount debugFilterCount, in  NextState nextState) => {
+                .WithAll<ChangedTag>()
+                .ForEach((Entity entity, int entityInQueryIndex, ref Live live,  ref Translation translation,ref debugFilterCount debugFilterCount, in  NextState nextState) => {
                     translation.Value = new float3(translation.Value.x, translation.Value.y,
                         math.select( zDead,zLive, live.value == 1));
                     debugFilterCount.Value++;
-
+                    ecb.RemoveComponent<ChangedTag>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
         return job;
     }
