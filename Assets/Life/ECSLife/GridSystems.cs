@@ -58,7 +58,6 @@ public class GenerateNextStateSystem : JobComponentSystem
 /// update Live from NextState and add ChangedTag
 /// </summary>
 
-
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateMarkChangeSystem : JobComponentSystem {
@@ -89,13 +88,13 @@ public class UpdateMarkChangeSystem : JobComponentSystem {
 /// set location on cells marked as changed and remove ChangedTag
 /// </summary>
 
-// changed the translation of mesh might stop the rendering system from making static optimizations
-// so .WithAll<ChangedTag>() limits changes to only mesh whose lives status changed
+// .WithAll<ChangedTag>() limits changes to only meshes whose lives status changed
 //
 
-[AlwaysSynchronizeSystem]
+
 [BurstCompile]
 public class UpdateMoveChangedSystem : JobComponentSystem {
+    
     protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
     
     protected override void OnCreate() {
@@ -104,20 +103,21 @@ public class UpdateMoveChangedSystem : JobComponentSystem {
         m_EndSimulationEcbSystem = World
             .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
+    
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     { 
         float zDead = ECSGrid.zDead;
         float zLive = ECSGrid.zLive;
         var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
-        var job = 
+        var jobHandle = 
             Entities
                 .WithAll<ChangedTag>()
-                .ForEach((Entity entity, int entityInQueryIndex, ref Live live,  ref Translation translation,ref debugFilterCount debugFilterCount, in  NextState nextState) => {
+                .ForEach((Entity entity, int entityInQueryIndex,  ref Translation translation,in Live live) => {
                     translation.Value = new float3(translation.Value.x, translation.Value.y,
                         math.select( zDead,zLive, live.value == 1));
-                    debugFilterCount.Value++;
                     ecb.RemoveComponent<ChangedTag>(entityInQueryIndex, entity);
                 }).Schedule(inputDeps);
-        return job;
+        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
+        return jobHandle;
     }
 }
