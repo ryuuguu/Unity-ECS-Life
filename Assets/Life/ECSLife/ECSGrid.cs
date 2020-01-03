@@ -20,8 +20,6 @@ public class ECSGrid : MonoBehaviour {
     Entity[,] _cells;
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
-    public static List<RenderMesh> renderMeshs = new List<RenderMesh>();
-    public static NativeArray<Color32> nativeImage;
     public static int sizeX;
     public static int sizeY;
     
@@ -54,7 +52,6 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.SetComponentData(instance, new Translation {Value = position});
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
-                entityManager.AddComponentData(instance, new debugFilterCount { Value = 0});
                 _cells[i, j] = instance;
             }
         }
