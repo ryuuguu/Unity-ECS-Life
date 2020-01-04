@@ -121,3 +121,56 @@ public class GenerateNextStateSystem : JobComponentSystem {
         return jobHandle;
     }
 }
+
+[AlwaysSynchronizeSystem]
+[BurstCompile]
+public class UpdateSuperCellLivesSystem : JobComponentSystem {
+    EntityQuery m_Group;
+
+    protected override void OnCreate() {
+        // Cached access to a set of ComponentData based on a specific query
+        m_Group = GetEntityQuery(ComponentType.ReadOnly<Live>(),
+            ComponentType.ReadOnly<SubcellIndex>(),
+            ComponentType.ChunkComponent<SuperCellLives>()
+        );
+    }
+    
+    struct CellEnergyJob : IJobChunk {
+        
+        [ReadOnly]public ArchetypeChunkComponentType<Live> LiveType;
+        [ReadOnly]public ArchetypeChunkComponentType<SubcellIndex> SubcellIndexType;
+        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+
+        public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
+            
+            var lives = chunk.GetNativeArray(LiveType);
+            var SubcellIndices = chunk.GetNativeArray(SubcellIndexType);
+
+ 
+            var scLives = new int4();
+            for (var i = 0; i < chunk.Count; i++) {
+                scLives[SubcellIndices[i].index] = lives[i].value;
+            }
+            chunk.SetChunkComponentData(SuperCellLivesType,
+                new SuperCellLives(){lives =scLives
+                });
+        }
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies) {
+        
+        var LiveType = GetArchetypeChunkComponentType<Live>(true);
+        var SubcellIndexType = GetArchetypeChunkComponentType<SubcellIndex>(false);
+        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+
+        var job = new CellEnergyJob() {
+            SubcellIndexType = SubcellIndexType,
+            LiveType = LiveType,
+            SuperCellLivesType = SuperCellLivesType
+        };
+        return job.Schedule(m_Group, inputDependencies);
+    }
+    
+    
+}
+
