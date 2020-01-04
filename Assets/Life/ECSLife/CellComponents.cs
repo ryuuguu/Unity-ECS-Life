@@ -66,7 +66,8 @@ public struct SuperCellXY : ISharedComponentData {
 ///  uses lives of cells to calculate image index 
 /// </summary>
 public struct SuperCellLives : IComponentData {
-    public int4 lives; // live values for 
+    //public int4 lives;  //was only used for creating index and debugging so removed
+    // live values for 
     // p = SuperCellXY.pos
     // (p+(0,0), p+(0,1), p+(1,0), p+(1,1)
     public int index; //index of image to be displayed
@@ -78,7 +79,9 @@ public struct SuperCellLives : IComponentData {
 /// is broken for ChunkComponents 
 /// </summary>
 public struct DebugSuperCellLives : IComponentData {
-    public int4 lives; 
+    public int4 lives;
+    public int4 livesDecoded;
+    public int index;
 } 
 
 public struct debugFilterCount : IComponentData {

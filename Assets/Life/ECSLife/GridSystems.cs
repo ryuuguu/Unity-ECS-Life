@@ -142,17 +142,21 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
         public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
-            
             var lives = chunk.GetNativeArray(LiveType);
             var SubcellIndices = chunk.GetNativeArray(SubcellIndexType);
-
- 
+            
             var scLives = new int4();
             for (var i = 0; i < chunk.Count; i++) {
                 scLives[SubcellIndices[i].index] = lives[i].value;
             }
+            int index = 0;
+            for (int i = 0; i < 4; i++) {
+                index +=   scLives[i]<< i;
+            }
             chunk.SetChunkComponentData(SuperCellLivesType,
-                new SuperCellLives(){lives =scLives
+                new SuperCellLives() {
+                    //lives =scLives,
+                    index = index
                 });
         }
     }
@@ -198,9 +202,19 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
 
             var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
 
-            var lives = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType).lives;
+            var chunkData = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType);
             for (var i = 0; i < chunk.Count; i++) {
-                debugSuperCellLives[i] = new DebugSuperCellLives() {lives = lives};
+                int4 livesDecoded = new int4();
+                int encoded = chunkData.index;
+                for (int j = 0; j < 4; j++) {
+                    livesDecoded[j] = encoded % 2;
+                    encoded >>= 1;
+                }
+                debugSuperCellLives[i] = new DebugSuperCellLives() {
+                    //lives = chunkData.lives,
+                    index = chunkData.index,
+                    livesDecoded  = livesDecoded
+                };
             }
         }
 

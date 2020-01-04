@@ -81,7 +81,7 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
                 var entityChunk = entityManager.GetChunk(instance);
                 entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                    new SuperCellLives(){lives = new int4()});
+                    new SuperCellLives(){index = 0});
             }
         }
         RPentonomio((size+2*Vector2Int.one)/2, entityManager);
