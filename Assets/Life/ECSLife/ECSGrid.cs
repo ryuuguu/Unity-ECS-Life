@@ -53,6 +53,8 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 entityManager.AddComponentData(instance, new DebugPosXY { pos = new int2(i,j)});
+               
+                
                 _cells[i, j] = instance;
             }
         }
@@ -60,6 +62,7 @@ public class ECSGrid : MonoBehaviour {
         for (int i = 1; i < size.x+1; i++) {
             for (int j = 1; j < size.y+1; j++) {
                 var instance = _cells[i, j];
+                entityManager.AddComponentData(instance, new DebugSuperCellLives { lives = new int4()});
                 entityManager.AddComponentData(instance, new SubcellIndex() {
                     index = ((i+1)%2) + (((j+1)%2)*2)
                 });
@@ -74,6 +77,11 @@ public class ECSGrid : MonoBehaviour {
                 pos[0] = (i  / 2) * 2; //(1,2) -> 1, (3,4) -> 2, etc.
                 pos[1] = (j  / 2) * 2; 
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
+                
+                entityManager.AddChunkComponentData<SuperCellLives>(instance);
+                var entityChunk = entityManager.GetChunk(instance);
+                entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
+                    new SuperCellLives(){lives = new int4()});
             }
         }
         RPentonomio((size+2*Vector2Int.one)/2, entityManager);
