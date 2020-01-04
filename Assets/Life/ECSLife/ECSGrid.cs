@@ -17,6 +17,8 @@ public class ECSGrid : MonoBehaviour {
     public GameObject prefabRenderMesh;
     public Vector2 _offset;
     public Vector2 _scale ;
+    public Material[] materials;
+    
     Entity[,] _cells;
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
