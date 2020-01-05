@@ -6,7 +6,6 @@ using Unity.Mathematics;
 
 //This stuff, including the commented out JobSystems, works but is not needed till next Tutorial
 
-
 /// <summary>
 /// SubcellIndex
 ///   index of cell in SuperCellLives.lives

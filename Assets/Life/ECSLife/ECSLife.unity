@@ -392,6 +392,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: {x: 400, y: 400}
+  stressTest: 0
   worldSize: 10
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 86f4648a734604be4aac2c3ef777ff4b,

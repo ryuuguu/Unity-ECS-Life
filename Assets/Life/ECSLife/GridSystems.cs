@@ -75,8 +75,6 @@ public class UpdateClearChangedSystem : JobComponentSystem {
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        float zDead = ECSGrid.zDead;
-        float zLive = ECSGrid.zLive;
         var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
         var jobHandle =
             Entities
