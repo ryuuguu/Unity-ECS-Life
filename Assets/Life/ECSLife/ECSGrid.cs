@@ -18,6 +18,7 @@ public class ECSGrid : MonoBehaviour {
     public Vector2 _offset;
     public Vector2 _scale ;
     public Material[] materials;
+    public static Material[] materialsStatic;
     
     Entity[,] _cells;
     public static  int[] stay = new int[9];
@@ -55,16 +56,14 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize});
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 entityManager.AddComponentData(instance, new DebugPosXY { pos = new int2(i,j)});
-               
-                
                 _cells[i, j] = instance;
             }
         }
-        entityManager.DestroyEntity(entity);
+        
         for (int i = 1; i < size.x+1; i++) {
             for (int j = 1; j < size.y+1; j++) {
                 var instance = _cells[i, j];
-                entityManager.AddComponentData(instance, new DebugSuperCellLives { lives = new int4()});
+                
                 entityManager.AddComponentData(instance, new SubcellIndex() {
                     index = ((i+1)%2) + (((j+1)%2)*2)
                 });
@@ -75,26 +74,54 @@ public class ECSGrid : MonoBehaviour {
                     sw = _cells[i + 1, j - 1], s = _cells[i + 1, j], se =  _cells[i + 1, j + 1]
                 });
                 //var position = new float3((i-1) * _scale.x + _offset.x, (j-1) * _scale.y + _offset.y, zDead)*worldSize;
-                var pos = new int2();
-                pos[0] = (i  / 2) * 2; //(1,2) -> 1, (3,4) -> 2, etc.
-                pos[1] = (j  / 2) * 2; 
+                var pos = Cell2Supercell(i,j);
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
-                
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
                 var entityChunk = entityManager.GetChunk(instance);
                 entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
                     new SuperCellLives(){index = 0});
             }
         }
+        
+        //for clarity creation of supercells is in a separate loop
+        for (int i = 1; i < size.x + 1; i++) {
+            for (int j = 1; j < size.y + 1; j++) {
+                var pos = Cell2Supercell(i,j);
+                if(i!=pos[0] || j!=pos[1]) continue;
+                if (i != j) continue;
+                var instance = entityManager.Instantiate(entity);
+                var position = new float3((i-1) * _scale.x + _offset.x, (j-1) * _scale.y + _offset.y, zLive)*worldSize;
+                entityManager.SetComponentData(instance, new Translation {Value = position});
+                entityManager.AddComponentData(instance, new Scale {Value = _scale.x*worldSize*SupercellScale()});
+                entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
+                entityManager.AddChunkComponentData<SuperCellLives>(instance);
+                var entityChunk = entityManager.GetChunk(instance);
+                entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
+                    new SuperCellLives(){index = 0});
+                entityManager.AddComponentData(instance, new DebugSuperCellLives { lives = new int4()});
+            }
+        }
+        entityManager.DestroyEntity(entity);
         RPentonomio((size+2*Vector2Int.one)/2, entityManager);
         stay[2] = stay[3] = 1; // does NOT include self in count
         born[3] = 1;
     }
+
+    public int2 Cell2Supercell(int i, int j) {
+        var pos = new int2();
+        pos[0] = (i  / 2) * 2; //(0,1) -> 0, (2,3) -> 2, etc.
+        pos[1] = (j  / 2) * 2;
+        return pos;
+    }
+    
+    public int SupercellScale() {
+        return 2;
+    }
     
     private void SetLive(int i, int j, EntityManager entityManager) {
         var instance = _cells[i, j];
-            var position = new float3((i - 1) * _scale.x + _offset.x, (j - 1) * _scale.y + _offset.y, zLive) * worldSize;
-            entityManager.SetComponentData(instance, new Translation {Value = position});
+            //var position = new float3((i - 1) * _scale.x + _offset.x, (j - 1) * _scale.y + _offset.y, zLive) * worldSize;
+            //entityManager.SetComponentData(instance, new Translation {Value = position});
             entityManager.SetComponentData(instance, new Live {value = 1});
             entityManager.SetComponentData(instance, new NextState() {value = 1});
     }

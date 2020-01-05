@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using Unity.Rendering;
-
+using UnityEngine;
 
 
 /// <summary>
@@ -38,44 +38,9 @@ public class UpdateMarkChangeSystem : JobComponentSystem {
     }
 }
 
-/// <summary>
-/// set location on cells marked as changed and remove ChangedTag
-/// </summary>
-
-// .WithAll<ChangedTag>() limits changes to only meshes whose lives status changed
 
 
-[UpdateAfter(typeof(UpdateMarkChangeSystem))]
-[BurstCompile]
-public class UpdateMoveChangedSystem : JobComponentSystem {
-    protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
-
-    protected override void OnCreate() {
-        base.OnCreate();
-        // Find the ECB system once and store it for later usage
-        m_EndSimulationEcbSystem = World
-            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-
-    protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        float zDead = ECSGrid.zDead;
-        float zLive = ECSGrid.zLive;
-        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
-        var jobHandle =
-            Entities
-                .WithAll<ChangedTag>()
-                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in Live live) => {
-                    translation.Value = new float3(translation.Value.x, translation.Value.y,
-                        math.select(zDead, zLive, live.value == 1));
-                    ecb.RemoveComponent<ChangedTag>(entityInQueryIndex, entity);
-                }).Schedule(inputDeps);
-        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
-        return jobHandle;
-    }
-}
-
-
-[UpdateAfter(typeof(UpdateMoveChangedSystem))]
+[UpdateAfter(typeof(UpdateClearChangedSystem))]
 public class GenerateNextStateSystem : JobComponentSystem {
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
     // read only variable is needed
@@ -232,7 +197,74 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         };
         return job.Schedule(m_Group, inputDependencies);
     }
-    
-    
 }
+
+/*
+/// <summary>
+/// set location on cells marked as changed and remove ChangedTag
+/// </summary>
+
+// .WithAll<ChangedTag>() limits changes to only meshes whose lives status changed
+
+
+[UpdateAfter(typeof(UpdateMarkChangeSystem))]
+[BurstCompile]
+public class UpdateMoveChangedSystem : JobComponentSystem {
+    protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
+
+    protected override void OnCreate() {
+        base.OnCreate();
+        // Find the ECB system once and store it for later usage
+        m_EndSimulationEcbSystem = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps) {
+        float zDead = ECSGrid.zDead;
+        float zLive = ECSGrid.zLive;
+        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+        var jobHandle =
+            Entities
+                .WithAll<ChangedTag>()
+                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in Live live) => {
+                    translation.Value = new float3(translation.Value.x, translation.Value.y,
+                        math.select(zDead, zLive, live.value == 1));
+                    ecb.RemoveComponent<ChangedTag>(entityInQueryIndex, entity);
+                }).Schedule(inputDeps);
+        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
+        return jobHandle;
+    }
+}
+
+*/
+
+[UpdateAfter(typeof(UpdateMarkChangeSystem))]
+[BurstCompile]
+public class UpdateClearChangedSystem : JobComponentSystem {
+    protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
+
+    protected override void OnCreate() {
+        base.OnCreate();
+        // Find the ECB system once and store it for later usage
+        m_EndSimulationEcbSystem = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDeps) {
+        float zDead = ECSGrid.zDead;
+        float zLive = ECSGrid.zLive;
+        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+        var jobHandle =
+            Entities
+                .WithAll<ChangedTag>()
+                .ForEach((Entity entity, int entityInQueryIndex) => {
+                    ecb.RemoveComponent<ChangedTag>(entityInQueryIndex, entity);
+                }).Schedule(inputDeps);
+        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
+        return jobHandle;
+    }
+}
+
+
+
 
