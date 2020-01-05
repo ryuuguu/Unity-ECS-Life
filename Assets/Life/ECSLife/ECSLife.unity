@@ -391,12 +391,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 8, y: 8}
+  size: {x: 400, y: 400}
   worldSize: 10
   holder: {fileID: 293954020}
-  prefabCell: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
+  prefabCell: {fileID: 9178653641751187751, guid: 86f4648a734604be4aac2c3ef777ff4b,
     type: 3}
-  prefabRenderMesh: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
+  prefabMesh: {fileID: 9178653641751187751, guid: 2182bea83e32642638cbf8e93d306a43,
     type: 3}
   _offset: {x: 0, y: 0}
   _scale: {x: 0, y: 0}
