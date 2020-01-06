@@ -26,21 +26,44 @@ public class ECSGrid : MonoBehaviour {
     public static  int[] stay = new int[9];
     public static int[] born = new int[9];
 
-    
-
     public float zDeadSetter;
     public static float zLive = -1;
+
+    public void Start() { 
+        InitDisplay();
+    }
+
+    public void Update() {
+        if (Time.frameCount == 2) {
+            InitECS();
+        }
+    }
     
-    void Start() {
+    public void InitDisplay() {
+        _scale = ( Vector2.one / size);
+        _offset = ((-1 * Vector2.one) + _scale)/2;
+        _meshRenderers = new MeshRenderer[size.x+2,size.y+2];
+        var cellLocalScale  = new Vector3(_scale.x,_scale.y,_scale.x);
+        for (int i = 0; i < size.x+2; i++) {
+            for (int j = 0; j < size.y+2; j++) {
+                var c = Instantiate(prefabMesh, holder);
+                var pos = new Vector3((i-1) * _scale.x + _offset.x, (j-1) * _scale.y + _offset.y, zLive);
+                c.transform.localScale = cellLocalScale; 
+                c.transform.localPosition = pos;
+                c.name += new Vector2Int(i, j);
+                _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
+            }
+        } 
+        InitLive(null);
+    }
+    
+    
+    void InitECS() {
         var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
         var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
-        _scale = ( Vector2.one / size);
-        _offset = ((-1 * Vector2.one) + _scale)/2;
         _cells = new Entity[size.x+2,size.y+2];
-        _meshRenderers = new MeshRenderer[size.x+2,size.y+2];
-        var cellLocalScale  = new Vector3(_scale.x,_scale.y,_scale.x);
         
         for (int i = 0; i < size.x+2; i++) {
             for (int j = 0; j < size.y+2; j++) {
@@ -48,12 +71,6 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddComponentData(instance, new Live { value = 0});
                 entityManager.AddComponentData(instance, new PosXY { pos = new int2(i,j)});
                 _cells[i, j] = instance;
-                var c = Instantiate(prefabMesh, holder);
-                var pos = new Vector3((i-1) * _scale.x + _offset.x, (j-1) * _scale.y + _offset.y, zLive);
-                c.transform.localScale = cellLocalScale; 
-                c.transform.localPosition = pos;
-                c.name += new Vector2Int(i, j);
-                _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
             }
         }
         
@@ -104,12 +121,8 @@ public class ECSGrid : MonoBehaviour {
         }
         */
         entityManager.DestroyEntity(entity);
-        if (stressTest) {
-            //FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
-            StressTest(entityManager);
-        } else {
-            RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
-        }
+        InitLive(entityManager);
+
     }
     /*
     // This code is for next Tutorial 
@@ -124,16 +137,31 @@ public class ECSGrid : MonoBehaviour {
         return 2;
     }
     */
+
+
+    public void InitLive(EntityManager entityManager) {
+        if (stressTest) {
+            BarTest( entityManager);
+            //StressTest(entityManager);
+        } else {
+            RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
+        }
+    }
     
-    private void SetLive(int i, int j, EntityManager entityManager) { 
-        var instance = _cells[i, j];
-        entityManager.SetComponentData(instance, new Live {value = 1});
-        entityManager.SetComponentData(instance, new NextState() {value = 1});
-        ShowCell(new int2(i, j), true);
+    private void SetLive(int i, int j, EntityManager entityManager) {
+        if (_cells != null) {
+            var instance = _cells[i, j];
+            entityManager.SetComponentData(instance, new Live {value = 1});
+            entityManager.SetComponentData(instance, new NextState() {value = 0});
+        }
+        else {
+            ShowCell(new int2(i, j), true);
+        }
     }
 
     public static void ShowCell(int2 pos, bool val) {
         _meshRenderers[pos.x, pos.y].enabled = val;
+        Debug.Log("p: " + pos + " : " + val);
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
@@ -149,6 +177,13 @@ public class ECSGrid : MonoBehaviour {
         SetLive(center.x, center.y+1, entityManager);
         SetLive(center.x, center.y-1, entityManager);
         
+    }
+    
+    void BarTest(EntityManager em) {
+        int i = 1;
+        for (int j = 1; j < size.y + 1; j++) {
+            SetLive(i, j, em);
+        }
     }
     
     void StressTest(EntityManager em) {
