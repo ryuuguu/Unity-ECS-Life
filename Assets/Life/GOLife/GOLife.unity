@@ -312,7 +312,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f01f1fc4f55434da6beeb64c2717c67b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 400, y: 400}
+  size: {x: 150, y: 150}
   zLive: -1
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187753, guid: 6b76f1a66e0694e9f8fdc5c84e7590ae,

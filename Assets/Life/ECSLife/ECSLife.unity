@@ -332,7 +332,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 6.17
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -391,8 +391,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 400, y: 400}
-  stressTest: 0
+  size: {x: 9, y: 9}
+  stressTest: 1
   worldSize: 10
   holder: {fileID: 293954020}
   prefabCell: {fileID: 9178653641751187751, guid: 86f4648a734604be4aac2c3ef777ff4b,
@@ -401,23 +401,6 @@ MonoBehaviour:
     type: 3}
   _offset: {x: 0, y: 0}
   _scale: {x: 0, y: 0}
-  materials:
-  - {fileID: 2100000, guid: 37f7370e22c0b43d287c8d87b9134244, type: 2}
-  - {fileID: 2100000, guid: 9a070f539819e4c06871614ff56ab5e9, type: 2}
-  - {fileID: 2100000, guid: 9aff2b9029f0a4d75b4ca2261b229271, type: 2}
-  - {fileID: 2100000, guid: f430398c3babe43a99d05c6fa641de50, type: 2}
-  - {fileID: 2100000, guid: 79defbb5c6f8d482ba4fe11596b7388a, type: 2}
-  - {fileID: 2100000, guid: e968c561520c2414f9aa92f0f415d00e, type: 2}
-  - {fileID: 2100000, guid: 6d7a38a879aae428f853a6cbc3db2193, type: 2}
-  - {fileID: 2100000, guid: 383b043911bbf40ab8d735d54705a634, type: 2}
-  - {fileID: 2100000, guid: e67d29376239b4a85b0c23d0c07b86e2, type: 2}
-  - {fileID: 2100000, guid: 6ba042e739cf347d1a6457f55549f057, type: 2}
-  - {fileID: 2100000, guid: 6e4348836c45e47d38aa5540af5688ec, type: 2}
-  - {fileID: 2100000, guid: 8052470bbe58a49b3b97692aebca87df, type: 2}
-  - {fileID: 2100000, guid: dbd7a37e5021d4324b933d538a2c915b, type: 2}
-  - {fileID: 2100000, guid: e7192a24e476d4612a8e78eb172fe4ee, type: 2}
-  - {fileID: 2100000, guid: ca3175445454642b3bc9fcef16814c58, type: 2}
-  - {fileID: 2100000, guid: a584ab4aea0904c909a1dc47f93b4ab8, type: 2}
   zDeadSetter: 2000
 --- !u!4 &1678352934
 Transform:

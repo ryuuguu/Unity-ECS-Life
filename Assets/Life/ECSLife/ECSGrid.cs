@@ -105,7 +105,8 @@ public class ECSGrid : MonoBehaviour {
         */
         entityManager.DestroyEntity(entity);
         if (stressTest) {
-            StressTest(entityManager);
+            FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
+           // StressTest(entityManager);
         } else {
             RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
         }
@@ -133,6 +134,7 @@ public class ECSGrid : MonoBehaviour {
 
     public static void ShowCell(int2 pos, bool val) {
         _meshRenderers[pos.x, pos.y].enabled = val;
+        Debug.Log("t: " + Time.frameCount +" p: "+ pos + ":" + val);
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
@@ -143,6 +145,13 @@ public class ECSGrid : MonoBehaviour {
         SetLive(center.x-1, center.y, entityManager);
     }
 
+    void FlasherTest(Vector2Int center, EntityManager entityManager) {
+        SetLive(center.x, center.y, entityManager);
+        SetLive(center.x, center.y+1, entityManager);
+        SetLive(center.x, center.y-1, entityManager);
+        
+    }
+    
     void StressTest(EntityManager em) {
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
@@ -152,6 +161,5 @@ public class ECSGrid : MonoBehaviour {
                 }
             }
         }
-
     }
 }

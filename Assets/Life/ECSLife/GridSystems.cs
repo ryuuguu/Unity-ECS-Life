@@ -62,6 +62,7 @@ public class UpdateDisplayChangedSystem : JobComponentSystem {
     }
 }
 
+[AlwaysSynchronizeSystem]
 [UpdateAfter(typeof(UpdateDisplayChangedSystem))]
 [BurstCompile]
 public class UpdateClearChangedSystem : JobComponentSystem {
@@ -87,6 +88,7 @@ public class UpdateClearChangedSystem : JobComponentSystem {
     }
 }
 
+[AlwaysSynchronizeSystem]
 [UpdateAfter(typeof(UpdateClearChangedSystem))]
 public class GenerateNextStateSystem : JobComponentSystem {
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
@@ -133,5 +135,64 @@ public class GenerateNextStateSystem : JobComponentSystem {
         return jobHandle;
     }
 }
+
+/*
+
+/// <summary>
+/// Copies ChunkComponent to instance component so it can checked in debugger
+/// </summary>
+[AlwaysSynchronizeSystem]
+[BurstCompile]
+public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
+    EntityQuery m_Group;
+
+    protected override void OnCreate() {
+        // Cached access to a set of ComponentData based on a specific query
+        m_Group = GetEntityQuery(ComponentType.ReadWrite<DebugSuperCellLives>(),
+            ComponentType.ChunkComponent<SuperCellLives>()
+        );
+    }
+    
+    struct CellEnergyJob : IJobChunk {
+        
+        public ArchetypeChunkComponentType<DebugSuperCellLives> DebugSuperCellLivesType;
+        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+
+        public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
+
+            var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
+
+            var chunkData = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType);
+            for (var i = 0; i < chunk.Count; i++) {
+                int4 livesDecoded = new int4();
+                int encoded = chunkData.index;
+                for (int j = 0; j < 4; j++) {
+                    livesDecoded[j] = encoded % 2;
+                    encoded >>= 1;
+                }
+                debugSuperCellLives[i] = new DebugSuperCellLives() {
+                    //lives = chunkData.lives,
+                    index = chunkData.index,
+                    livesDecoded  = livesDecoded
+                };
+            }
+        }
+
+
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies) {
+        
+        var DebugSuperCellLivesType = GetArchetypeChunkComponentType<DebugSuperCellLives>();
+        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+
+        var job = new CellEnergyJob() {
+            DebugSuperCellLivesType = DebugSuperCellLivesType,
+            SuperCellLivesType = SuperCellLivesType
+        };
+        return job.Schedule(m_Group, inputDependencies);
+    }
+}
+*/
 
 
