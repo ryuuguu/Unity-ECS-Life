@@ -134,7 +134,6 @@ public class ECSGrid : MonoBehaviour {
 
     public static void ShowCell(int2 pos, bool val) {
         _meshRenderers[pos.x, pos.y].enabled = val;
-        Debug.Log("t: " + Time.frameCount +" p: "+ pos + ":" + val);
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {

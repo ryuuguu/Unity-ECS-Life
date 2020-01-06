@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 9, y: 9}
+  size: {x: 300, y: 300}
   stressTest: 1
   worldSize: 10
   holder: {fileID: 293954020}
