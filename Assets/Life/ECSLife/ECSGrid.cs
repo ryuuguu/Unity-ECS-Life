@@ -105,8 +105,8 @@ public class ECSGrid : MonoBehaviour {
         */
         entityManager.DestroyEntity(entity);
         if (stressTest) {
-            FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
-           // StressTest(entityManager);
+            //FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
+            StressTest(entityManager);
         } else {
             RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
         }

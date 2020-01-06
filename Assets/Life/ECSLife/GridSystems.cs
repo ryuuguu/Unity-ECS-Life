@@ -63,7 +63,7 @@ public class UpdateDisplayChangedSystem : JobComponentSystem {
 }
 
 [AlwaysSynchronizeSystem]
-[UpdateAfter(typeof(UpdateDisplayChangedSystem))]
+[UpdateBefore(typeof(GenerateNextStateSystem))]
 [BurstCompile]
 public class UpdateClearChangedSystem : JobComponentSystem {
     protected EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
@@ -89,7 +89,7 @@ public class UpdateClearChangedSystem : JobComponentSystem {
 }
 
 [AlwaysSynchronizeSystem]
-[UpdateAfter(typeof(UpdateClearChangedSystem))]
+[UpdateBefore(typeof(UpdateMarkChangeSystem))]
 public class GenerateNextStateSystem : JobComponentSystem {
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
     // read only variable is needed
