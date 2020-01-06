@@ -31,14 +31,9 @@ public class ECSGrid : MonoBehaviour {
 
     public void Start() { 
         InitDisplay();
+        InitECS();
     }
 
-    public void Update() {
-        if (Time.frameCount == 2) {
-            InitECS();
-        }
-    }
-    
     public void InitDisplay() {
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -143,9 +138,9 @@ public class ECSGrid : MonoBehaviour {
         if (stressTest) {
             BarTest( entityManager);
             //StressTest(entityManager);
-        } else {
-            RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
-        }
+        } 
+        RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
+        
     }
     
     private void SetLive(int i, int j, EntityManager entityManager) {
@@ -161,13 +156,13 @@ public class ECSGrid : MonoBehaviour {
 
     public static void ShowCell(int2 pos, bool val) {
         _meshRenderers[pos.x, pos.y].enabled = val;
-        Debug.Log("p: " + pos + " : " + val);
+//        Debug.Log("p: " + pos + " : " + val);
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
         SetLive(center.x, center.y, entityManager);
         SetLive(center.x, center.y+1, entityManager);
-        SetLive(center.x+1, center.y+1, entityManager);
+        SetLive(center.x+1, center.y-1, entityManager);
         SetLive(center.x, center.y-1, entityManager);
         SetLive(center.x-1, center.y, entityManager);
     }
