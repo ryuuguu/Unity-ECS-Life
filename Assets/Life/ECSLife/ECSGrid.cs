@@ -48,14 +48,11 @@ public class ECSGrid : MonoBehaviour {
                 c.name += new Vector2Int(i, j);
                 _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
             }
-        } 
-        InitLive(null);
+        }
     }
     
     
     void InitECS() {
-        var settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null);
-        var entity = GameObjectConversionUtility.ConvertGameObjectHierarchy(prefabCell, settings);
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
         _cells = new Entity[size.x+2,size.y+2];
@@ -72,10 +69,12 @@ public class ECSGrid : MonoBehaviour {
         for (int i = 1; i < size.x+1; i++) {
             for (int j = 1; j < size.y+1; j++) {
                 var instance = _cells[i, j];
-                
+                /*
+                // This code is for next Tutorial
                 entityManager.AddComponentData(instance, new SubcellIndex() {
                     index = ((i+1)%2) + (((j+1)%2)*2)
                 });
+                */
                 entityManager.AddComponentData(instance, new NextState() {value = 0});
                 entityManager.AddComponentData(instance, new Neighbors() {
                     nw = _cells[i - 1, j - 1], n = _cells[i - 1, j], ne =  _cells[i - 1, j+1],
@@ -115,7 +114,6 @@ public class ECSGrid : MonoBehaviour {
             }
         }
         */
-        entityManager.DestroyEntity(entity);
         InitLive(entityManager);
 
     }
@@ -156,7 +154,6 @@ public class ECSGrid : MonoBehaviour {
 
     public static void ShowCell(int2 pos, bool val) {
         _meshRenderers[pos.x, pos.y].enabled = val;
-//        Debug.Log("p: " + pos + " : " + val);
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
