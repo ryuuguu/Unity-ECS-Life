@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca768ce59fb2d4571a368f11223d39b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: {x: 600, y: 600}
+  size: {x: 11, y: 11}
   stressTest: 1
   worldSize: 10
   holder: {fileID: 293954020}
@@ -401,6 +401,8 @@ MonoBehaviour:
     type: 3}
   _offset: {x: 0, y: 0}
   _scale: {x: 0, y: 0}
+  materials: []
+  superCellScale: 2
   zDeadSetter: 2000
 --- !u!4 &1678352934
 Transform:

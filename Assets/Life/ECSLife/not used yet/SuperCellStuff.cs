@@ -41,7 +41,6 @@ public struct SuperCellLives : IComponentData {
 /// is broken for ChunkComponents 
 /// </summary>
 public struct DebugSuperCellLives : IComponentData {
-    public int4 lives;
     public int4 livesDecoded;
     public int index;
 } 

@@ -140,11 +140,63 @@ public class UpdateClearChangedSystem : JobComponentSystem {
         return jobHandle;
     }
 }
-
-
-
-
 /*
+/// <summary>
+/// Copies ChunkComponent to instance component so it can checked in debugger
+/// </summary>
+[AlwaysSynchronizeSystem]
+[BurstCompile]
+public class UpdateSuperCellLivesSystem : JobComponentSystem {
+    EntityQuery m_Group;
+
+    protected override void OnCreate() {
+        // Cached access to a set of ComponentData based on a specific query
+        m_Group = GetEntityQuery(ComponentType.ReadWrite<DebugSuperCellLives>(),
+            ComponentType.ChunkComponent<SuperCellLives>()
+        );
+    }
+    
+    struct SuperCellLivesJob : IJobChunk {
+        
+        public ArchetypeChunkComponentType<DebugSuperCellLives> DebugSuperCellLivesType;
+        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+
+        public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
+
+            var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
+
+            var chunkData = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType);
+            for (var i = 0; i < chunk.Count; i++) {
+                int4 livesDecoded = new int4();
+                int encoded = chunkData.index;
+                for (int j = 0; j < 4; j++) {
+                    livesDecoded[j] = encoded % 2;
+                    encoded >>= 1;
+                }
+                debugSuperCellLives[i] = new DebugSuperCellLives() {
+                    //lives = chunkData.lives,
+                    index = chunkData.index,
+                    livesDecoded  = livesDecoded
+                };
+            }
+        }
+
+
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies) {
+        
+        var DebugSuperCellLivesType = GetArchetypeChunkComponentType<DebugSuperCellLives>();
+        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+
+        var job = new SuperCellLivesJob() {
+            DebugSuperCellLivesType = DebugSuperCellLivesType,
+            SuperCellLivesType = SuperCellLivesType
+        };
+        return job.Schedule(m_Group, inputDependencies);
+    }
+}
+*/
 
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
@@ -201,6 +253,5 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         return job.Schedule(m_Group, inputDependencies);
     }
 }
-*/
 
 
