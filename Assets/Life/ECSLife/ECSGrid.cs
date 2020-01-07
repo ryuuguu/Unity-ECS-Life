@@ -110,13 +110,13 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
                 var entityChunk = entityManager.GetChunk(instance);
                 entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                    new SuperCellLives(){index = 0});
-                
+                    new SuperCellLives(){index = 0, changed = false, prevIndex = 0});
+                entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
             }
         }
         
         // This code is for next Tutorial 
-         
+         /*
         //for clarity creation of supercells is in a separate loop
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
@@ -124,15 +124,15 @@ public class ECSGrid : MonoBehaviour {
                 if(i!=pos[0] || j!=pos[1]) continue;
                 var instance = entityManager.CreateEntity();
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
-                entityManager.AddChunkComponentData<SuperCellLives>(instance);
-                var entityChunk = entityManager.GetChunk(instance);
-                entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                    new SuperCellLives(){index = 0});
+                //entityManager.AddChunkComponentData<SuperCellLives>(instance);
+               // var entityChunk = entityManager.GetChunk(instance);
+                //entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
+                //    new SuperCellLives(){index = 0});
                 entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
                 
             }
         }
-        
+        */
         InitLive(entityManager);
 
     }

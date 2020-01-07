@@ -33,6 +33,8 @@ public struct SuperCellLives : IComponentData {
     // p = SuperCellXY.pos
     // (p+(0,0), p+(0,1), p+(1,0), p+(1,1)
     public int index; //index of image to be displayed
+    public bool changed;
+    public int prevIndex;
 } 
 
 /// <summary>
@@ -43,6 +45,7 @@ public struct SuperCellLives : IComponentData {
 public struct DebugSuperCellLives : IComponentData {
     public int4 livesDecoded;
     public int index;
+    public bool changed;
 } 
 
 

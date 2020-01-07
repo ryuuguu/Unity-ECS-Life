@@ -140,10 +140,8 @@ public class UpdateClearChangedSystem : JobComponentSystem {
         return jobHandle;
     }
 }
-/*
-/// <summary>
-/// Copies ChunkComponent to instance component so it can checked in debugger
-/// </summary>
+
+
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateSuperCellLivesSystem : JobComponentSystem {
@@ -151,52 +149,58 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
 
     protected override void OnCreate() {
         // Cached access to a set of ComponentData based on a specific query
-        m_Group = GetEntityQuery(ComponentType.ReadWrite<DebugSuperCellLives>(),
+        m_Group = GetEntityQuery(ComponentType.ReadOnly<Live>(),
+            ComponentType.ReadOnly<SubcellIndex>(),
             ComponentType.ChunkComponent<SuperCellLives>()
         );
     }
     
-    struct SuperCellLivesJob : IJobChunk {
+    struct SuperCellIndexJob : IJobChunk {
         
-        public ArchetypeChunkComponentType<DebugSuperCellLives> DebugSuperCellLivesType;
+        [ReadOnly]public ArchetypeChunkComponentType<Live> LiveType;
+        [ReadOnly]public ArchetypeChunkComponentType<SubcellIndex> SubcellIndexType;
         public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
-
-            var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
-
-            var chunkData = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType);
+            var lives = chunk.GetNativeArray(LiveType);
+            var SubcellIndices = chunk.GetNativeArray(SubcellIndexType);
+            
+            var scLives = new int4();
             for (var i = 0; i < chunk.Count; i++) {
-                int4 livesDecoded = new int4();
-                int encoded = chunkData.index;
-                for (int j = 0; j < 4; j++) {
-                    livesDecoded[j] = encoded % 2;
-                    encoded >>= 1;
-                }
-                debugSuperCellLives[i] = new DebugSuperCellLives() {
-                    //lives = chunkData.lives,
-                    index = chunkData.index,
-                    livesDecoded  = livesDecoded
-                };
+                scLives[SubcellIndices[i].index] = lives[i].value;
             }
+            int index = 0;
+            for (int i = 0; i < 4; i++) {
+                index +=   scLives[i]<< i;
+            }
+
+            bool changed = index != chunk.GetChunkComponentData(SuperCellLivesType).index;
+            chunk.SetChunkComponentData(SuperCellLivesType,
+                new SuperCellLives() {
+                    index = index,
+                    changed = changed
+                });
         }
-
-
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies) {
         
-        var DebugSuperCellLivesType = GetArchetypeChunkComponentType<DebugSuperCellLives>();
+        var LiveType = GetArchetypeChunkComponentType<Live>(true);
+        var SubcellIndexType = GetArchetypeChunkComponentType<SubcellIndex>(false);
         var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
 
-        var job = new SuperCellLivesJob() {
-            DebugSuperCellLivesType = DebugSuperCellLivesType,
+        var job = new SuperCellIndexJob() {
+            SubcellIndexType = SubcellIndexType,
+            LiveType = LiveType,
             SuperCellLivesType = SuperCellLivesType
         };
         return job.Schedule(m_Group, inputDependencies);
     }
+    
+    
 }
-*/
+
+
 
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
@@ -231,9 +235,9 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
                     encoded >>= 1;
                 }
                 debugSuperCellLives[i] = new DebugSuperCellLives() {
-                    //lives = chunkData.lives,
                     index = chunkData.index,
-                    livesDecoded  = livesDecoded
+                    livesDecoded  = livesDecoded,
+                    changed = chunkData.changed
                 };
             }
         }
