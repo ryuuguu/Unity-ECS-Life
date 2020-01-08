@@ -14,7 +14,8 @@ using UnityEngine;
 
 
 [AlwaysSynchronizeSystem]
-[UpdateBefore(typeof(UpdateMarkChangeSystem))]
+[UpdateBefore(typeof(UpdateNextSateSystem))]
+//[UpdateBefore(typeof(UpdateMarkChangeSystem))]
 public class GenerateNextStateSystem : JobComponentSystem {
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
     // read only variable is needed
@@ -61,6 +62,22 @@ public class GenerateNextStateSystem : JobComponentSystem {
     }
 }
 
+
+[UpdateBefore(typeof(UpdateSuperCellLivesSystem))]
+[AlwaysSynchronizeSystem]
+[BurstCompile]
+public class UpdateNextSateSystem : JobComponentSystem {
+    protected override JobHandle OnUpdate(JobHandle inputDeps) {
+        
+        JobHandle jobHandle = Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Live live, in  NextState nextState)=> {
+                live.value = nextState.value;
+            }).Schedule( inputDeps);
+        return jobHandle;
+    }
+}
+
+/*
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateMarkChangeSystem : JobComponentSystem {
@@ -87,6 +104,7 @@ public class UpdateMarkChangeSystem : JobComponentSystem {
     }
 }
 
+
 /// <summary>
 /// set location on cells marked as changed and remove ChangedTag
 /// </summary>
@@ -100,7 +118,7 @@ public class UpdateDisplayChangedSystem : JobComponentSystem {
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
         Entities
             .WithoutBurst()
-            //.WithAll<ChangedTag>()
+            .WithAll<ChangedTag>()
             .ForEach((Entity entity, int entityInQueryIndex, in Live live, in PosXY posXY) => {
               ECSGrid.ShowCell(posXY.pos, live.value ==1);  
             }).Run();
@@ -138,8 +156,7 @@ public class UpdateClearChangedSystem : JobComponentSystem {
         return jobHandle;
     }
 }
-
-
+*/
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateSuperCellLivesSystem : JobComponentSystem {
@@ -186,7 +203,6 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
                     index = index,
                     changed = changed,
                     pos = pos
-                    
                 });
         }
     }
@@ -211,6 +227,7 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
 
 
 [AlwaysSynchronizeSystem]
+[UpdateAfter(typeof(UpdateSuperCellLivesSystem))]
 public class UpdateSuperCellChangedSystem : JobComponentSystem {
     EntityQuery m_Group;
 
@@ -226,9 +243,9 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
-            //if (chunkData.changed) {
+            if (chunkData.changed) {
                ECSGrid.ShowSuperCell(chunkData.pos, chunkData.index);
-            //}
+            }
         }
     }
 
@@ -245,7 +262,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
     
 }
 
-
+/*
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
 /// </summary>
@@ -311,5 +328,5 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         return job.Schedule(m_Group, inputDependencies);
     }
 }
-
+*/
 

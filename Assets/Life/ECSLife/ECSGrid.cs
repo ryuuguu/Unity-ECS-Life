@@ -33,14 +33,14 @@ public class ECSGrid : MonoBehaviour {
     public static float zLive = -1;
 
     public void Start() {
-        InitDisplay();
+        //InitDisplay();
         InitSuperCellDisplay();
         InitECS();
     }
 
     private void Update() {
         RunSCCommandBuffer();
-        RunCellCommandBuffer();
+        //RunCellCommandBuffer();
     }
 
     
@@ -126,24 +126,6 @@ public class ECSGrid : MonoBehaviour {
             }
         }
         
-        // This code is for next Tutorial 
-         /*
-        //for clarity creation of supercells is in a separate loop
-        for (int i = 1; i < size.x + 1; i++) {
-            for (int j = 1; j < size.y + 1; j++) {
-                var pos = Cell2Supercell(i,j);
-                if(i!=pos[0] || j!=pos[1]) continue;
-                var instance = entityManager.CreateEntity();
-                entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
-                //entityManager.AddChunkComponentData<SuperCellLives>(instance);
-               // var entityChunk = entityManager.GetChunk(instance);
-                //entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                //    new SuperCellLives(){index = 0});
-                entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
-                
-            }
-        }
-        */
         InitLive(entityManager);
 
     }
@@ -159,7 +141,7 @@ public class ECSGrid : MonoBehaviour {
 
     public void InitLive(EntityManager entityManager) {
         if (stressTest) {
-            //FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
+            FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
             BarTest( entityManager);
             //StressTest(entityManager);
         } 
@@ -185,7 +167,7 @@ public class ECSGrid : MonoBehaviour {
             val = val ? 0 : 1
         };
         _meshRenderers[pos.x, pos.y].enabled = val;
-        Debug.Log(" ShowCell: "+ pos + " : "+ val);
+        //Debug.Log(" ShowCell: "+ pos + " : "+ val);
     }
     
     public static void ShowSuperCell(int2 pos,int val) {
@@ -210,7 +192,7 @@ public class ECSGrid : MonoBehaviour {
     
     private static void RunCellCommandBuffer() {
         foreach (var command in CellCommandBuffer) {
-           // Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
+            Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
             _meshRenderersSC[command.pos.x,command. pos.y].enabled = command.val != 0;
             
         }
