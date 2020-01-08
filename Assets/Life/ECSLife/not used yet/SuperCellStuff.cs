@@ -22,6 +22,7 @@ public struct SuperCellXY : ISharedComponentData {
     public int2 pos; // these coordinates are the xMin, yMin corner
 }
 
+
 /// <summary>
 /// SuperCellLives
 ///  Chunk Component
@@ -34,7 +35,7 @@ public struct SuperCellLives : IComponentData {
     // (p+(0,0), p+(0,1), p+(1,0), p+(1,1)
     public int index; //index of image to be displayed
     public bool changed;
-    public int prevIndex;
+    public int2 pos;
 } 
 
 /// <summary>
@@ -46,6 +47,7 @@ public struct DebugSuperCellLives : IComponentData {
     public int4 livesDecoded;
     public int index;
     public bool changed;
+    public int2 pos;
 } 
 
 

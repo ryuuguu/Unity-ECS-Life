@@ -31,11 +31,13 @@ public class ECSGrid : MonoBehaviour {
     public static float zLive = -1;
 
     public void Start() {
-        InitDisplay();
-        //InitSuperCellDisplay();
+        //InitDisplay();
+        InitSuperCellDisplay();
         InitECS();
     }
 
+    
+    
     public void InitDisplay() {
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -58,9 +60,10 @@ public class ECSGrid : MonoBehaviour {
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
         _meshRenderers = new MeshRenderer[size.x+2,size.y+2];
+        materialsStatic = materials;
         var cellLocalScale  = new Vector3(_scale.x,_scale.y,_scale.x) * superCellScale;
-        for (int i = 1; i < size.x+1; i++) {
-            for (int j = 1; j < size.y+1; j++) {
+        for (int i = 0; i < size.x+2; i++) {
+            for (int j = 0; j < size.y+2; j++) {
                 var coord = Cell2Supercell(i, j);
                 if (coord[0] != i || coord[1] != j) continue;
                 var c = Instantiate(prefabMesh, holder);
@@ -68,7 +71,7 @@ public class ECSGrid : MonoBehaviour {
                 c.transform.localScale = cellLocalScale; 
                 c.transform.localPosition = pos;
                 c.name += new Vector2Int(i, j);
-               // _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
+                _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
                 
             }
         }
@@ -110,7 +113,7 @@ public class ECSGrid : MonoBehaviour {
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
                 var entityChunk = entityManager.GetChunk(instance);
                 entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                    new SuperCellLives(){index = 0, changed = false, prevIndex = 0});
+                    new SuperCellLives(){index = 0, changed = false,pos = pos});
                 entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
             }
         }
@@ -167,7 +170,17 @@ public class ECSGrid : MonoBehaviour {
     }
 
     public static void ShowCell(int2 pos, bool val) {
-        _meshRenderers[pos.x, pos.y].enabled = val;
+        //_meshRenderers[pos.x, pos.y].enabled = val;
+        Debug.Log(" ShowCell: "+ pos + " : "+ val);
+    }
+    
+    public static void ShowSuperCell(int2 pos,int val) {
+        Debug.Log(" ShowSuperCell: "+ pos + " : "+ val);
+        if (val == 0) {
+            _meshRenderers[pos.x, pos.y].enabled = false;
+        } else {
+            _meshRenderers[pos.x, pos.y].material = materialsStatic[val];
+        }
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {

@@ -149,8 +149,10 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
 
     protected override void OnCreate() {
         // Cached access to a set of ComponentData based on a specific query
-        m_Group = GetEntityQuery(ComponentType.ReadOnly<Live>(),
+        m_Group = GetEntityQuery(
+            ComponentType.ReadOnly<Live>(),
             ComponentType.ReadOnly<SubcellIndex>(),
+            ComponentType.ReadOnly<PosXY>(),
             ComponentType.ChunkComponent<SuperCellLives>()
         );
     }
@@ -159,11 +161,13 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
         
         [ReadOnly]public ArchetypeChunkComponentType<Live> LiveType;
         [ReadOnly]public ArchetypeChunkComponentType<SubcellIndex> SubcellIndexType;
+        [ReadOnly]public ArchetypeChunkComponentType<PosXY> PosXYType;
         public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var lives = chunk.GetNativeArray(LiveType);
             var SubcellIndices = chunk.GetNativeArray(SubcellIndexType);
+            var posXYs = chunk.GetNativeArray(PosXYType);
             
             var scLives = new int4();
             for (var i = 0; i < chunk.Count; i++) {
@@ -173,12 +177,18 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
             for (int i = 0; i < 4; i++) {
                 index +=   scLives[i]<< i;
             }
-
-            bool changed = index != chunk.GetChunkComponentData(SuperCellLivesType).index;
+            var pos = new int2();
+            pos[0] = (posXYs[0].pos.x / 2) * 2; //(0,1) -> 0, (2,3) -> 2, etc.
+            pos[1] = (posXYs[0].pos.y  / 2) * 2;
+            
+            var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
+            bool changed = index != chunkData.index;
             chunk.SetChunkComponentData(SuperCellLivesType,
                 new SuperCellLives() {
                     index = index,
-                    changed = changed
+                    changed = changed,
+                    pos = pos
+                    
                 });
         }
     }
@@ -188,18 +198,54 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
         var LiveType = GetArchetypeChunkComponentType<Live>(true);
         var SubcellIndexType = GetArchetypeChunkComponentType<SubcellIndex>(false);
         var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+        var PosXYType = GetArchetypeChunkComponentType<PosXY>();
 
         var job = new SuperCellIndexJob() {
             SubcellIndexType = SubcellIndexType,
             LiveType = LiveType,
-            SuperCellLivesType = SuperCellLivesType
+            SuperCellLivesType = SuperCellLivesType,
+            PosXYType = PosXYType
         };
         return job.Schedule(m_Group, inputDependencies);
     }
     
-    
 }
 
+
+[AlwaysSynchronizeSystem]
+public class UpdateSuperCellChangedSystem : JobComponentSystem {
+    EntityQuery m_Group;
+
+    protected override void OnCreate() {
+        // Cached access to a set of ComponentData based on a specific query
+        m_Group = GetEntityQuery(ComponentType.ChunkComponentReadOnly<SuperCellLives>()
+        );
+    }
+    
+    struct SuperCellDisplayJob : IJobChunk {
+        
+        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+
+        public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
+            var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
+            if (chunkData.changed) {
+               ECSGrid.ShowSuperCell(chunkData.pos, chunkData.index);
+            }
+        }
+    }
+
+    protected override JobHandle OnUpdate(JobHandle inputDependencies) {
+        
+        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+
+        var job = new SuperCellDisplayJob() {
+            SuperCellLivesType = SuperCellLivesType
+        };
+        job.Run(m_Group);
+        return default;
+    }
+    
+}
 
 
 /// <summary>
@@ -217,16 +263,23 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         );
     }
     
-    struct CellEnergyJob : IJobChunk {
+    struct DebugSuperCellLivesJob : IJobChunk {
         
         public ArchetypeChunkComponentType<DebugSuperCellLives> DebugSuperCellLivesType;
         public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+        [ReadOnly] public ArchetypeChunkSharedComponentType<SuperCellXY> superCellSharedType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
 
             var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
-
-            var chunkData = chunk.GetChunkComponentData<SuperCellLives>(SuperCellLivesType);
+            
+            int sharedComponentIndex = chunk.GetSharedComponentIndex(superCellSharedType);
+            int numSc = chunk.NumSharedComponents();
+            //var x = chunk.GetSharedComponentData()
+            var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
+            
+            //int uniqueIndex = chunkData.indices.IndexOf(sharedComponentIndex);
+            //chunk.GetSharedComponentData<SuperCellXY>()
             for (var i = 0; i < chunk.Count; i++) {
                 int4 livesDecoded = new int4();
                 int encoded = chunkData.index;
@@ -237,7 +290,8 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
                 debugSuperCellLives[i] = new DebugSuperCellLives() {
                     index = chunkData.index,
                     livesDecoded  = livesDecoded,
-                    changed = chunkData.changed
+                    changed = chunkData.changed,
+                    pos = chunkData.pos
                 };
             }
         }
@@ -249,10 +303,12 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         
         var DebugSuperCellLivesType = GetArchetypeChunkComponentType<DebugSuperCellLives>();
         var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
-
-        var job = new CellEnergyJob() {
+        var SuperCellXYType = GetArchetypeChunkSharedComponentType<SuperCellXY>();
+        
+        var job = new DebugSuperCellLivesJob() {
             DebugSuperCellLivesType = DebugSuperCellLivesType,
-            SuperCellLivesType = SuperCellLivesType
+            SuperCellLivesType = SuperCellLivesType,
+            superCellSharedType = SuperCellXYType
         };
         return job.Schedule(m_Group, inputDependencies);
     }
