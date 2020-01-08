@@ -92,7 +92,7 @@ public class UpdateMarkChangeSystem : JobComponentSystem {
 /// </summary>
 
 // .WithAll<ChangedTag>() limits changes to only meshes whose lives status changed
-
+/*
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [AlwaysSynchronizeSystem]
 public class UpdateDisplayChangedSystem : JobComponentSystem {
@@ -109,11 +109,11 @@ public class UpdateDisplayChangedSystem : JobComponentSystem {
         return inputDeps;
     }
 }
-
+*/
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [AlwaysSynchronizeSystem]
-[UpdateAfter(typeof(UpdateDisplayChangedSystem))]
+//[UpdateAfter(typeof(UpdateDisplayChangedSystem))]
 [BurstCompile]
 public class UpdateClearChangedSystem : JobComponentSystem {
     // I would like to do this in EndPresentationEntityCommandBufferSystem 

@@ -24,8 +24,7 @@ public class ECSGrid : MonoBehaviour {
     
     Entity[,] _cells;
     private static MeshRenderer[,] _meshRenderers;
-    public static  int[] stay = new int[9];
-    public static int[] born = new int[9];
+    private static List<ShowSuperCellData> SuperCellCommandBuffer = new List<ShowSuperCellData>();
 
     public float zDeadSetter;
     public static float zLive = -1;
@@ -36,8 +35,12 @@ public class ECSGrid : MonoBehaviour {
         InitECS();
     }
 
+    private void Update() {
+        RunSSCommandBuffer();
+    }
+
     
-    
+
     public void InitDisplay() {
         _scale = ( Vector2.one / size);
         _offset = ((-1 * Vector2.one) + _scale)/2;
@@ -175,12 +178,23 @@ public class ECSGrid : MonoBehaviour {
     }
     
     public static void ShowSuperCell(int2 pos,int val) {
-        Debug.Log(" ShowSuperCell: "+ pos + " : "+ val);
-        if (val == 0) {
-            _meshRenderers[pos.x, pos.y].enabled = false;
-        } else {
-            _meshRenderers[pos.x, pos.y].material = materialsStatic[val];
+        var command = new ShowSuperCellData() {
+            pos = pos,
+            val = val
+        };
+        SuperCellCommandBuffer.Add(command);
+        
+    }
+    
+    private static void RunSSCommandBuffer() {
+        foreach (var command in SuperCellCommandBuffer) {
+            Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
+            _meshRenderers[command.pos.x,command. pos.y].enabled = command.val == 0;
+            if (command.val != 0) {
+                _meshRenderers[command.pos.x, command.pos.y].material = materialsStatic[command.val];
+            }
         }
+        SuperCellCommandBuffer.Clear();
     }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
@@ -215,4 +229,10 @@ public class ECSGrid : MonoBehaviour {
             }
         }
     }
+
+    struct ShowSuperCellData {
+        public int2 pos;
+        public int val;
+    }
+    
 }
