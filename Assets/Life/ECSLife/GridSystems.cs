@@ -92,24 +92,22 @@ public class UpdateMarkChangeSystem : JobComponentSystem {
 /// </summary>
 
 // .WithAll<ChangedTag>() limits changes to only meshes whose lives status changed
-/*
+
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [AlwaysSynchronizeSystem]
 public class UpdateDisplayChangedSystem : JobComponentSystem {
     
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        
         Entities
             .WithoutBurst()
             .WithAll<ChangedTag>()
             .ForEach((Entity entity, int entityInQueryIndex, in Live live, in PosXY posXY) => {
               ECSGrid.ShowCell(posXY.pos, live.value ==1);  
             }).Run();
-   
         return inputDeps;
     }
 }
-*/
+
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [AlwaysSynchronizeSystem]
@@ -228,9 +226,9 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
-            if (chunkData.changed) {
+            //if (chunkData.changed) {
                ECSGrid.ShowSuperCell(chunkData.pos, chunkData.index);
-            }
+            //}
         }
     }
 
