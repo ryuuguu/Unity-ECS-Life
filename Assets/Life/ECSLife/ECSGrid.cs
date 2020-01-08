@@ -159,10 +159,11 @@ public class ECSGrid : MonoBehaviour {
 
     public void InitLive(EntityManager entityManager) {
         if (stressTest) {
+            //FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
             BarTest( entityManager);
             //StressTest(entityManager);
         } 
-        RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
+        //RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
         
     }
     
@@ -184,7 +185,7 @@ public class ECSGrid : MonoBehaviour {
             val = val ? 0 : 1
         };
         _meshRenderers[pos.x, pos.y].enabled = val;
-        //Debug.Log(" ShowCell: "+ pos + " : "+ val);
+        Debug.Log(" ShowCell: "+ pos + " : "+ val);
     }
     
     public static void ShowSuperCell(int2 pos,int val) {
@@ -198,7 +199,7 @@ public class ECSGrid : MonoBehaviour {
     
     private static void RunSCCommandBuffer() {
         foreach (var command in SuperCellCommandBuffer) {
-            //Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
+            Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
             _meshRenderersSC[command.pos.x,command. pos.y].enabled = command.val != 0;
             if (command.val != 0) {
                 _meshRenderersSC[command.pos.x, command.pos.y].material = materialsStatic[command.val];
@@ -241,7 +242,6 @@ public class ECSGrid : MonoBehaviour {
     void StressTest(EntityManager em) {
         for (int i = 1; i < size.x + 1; i++) {
             for (int j = 1; j < size.y + 1; j++) {
-
                 if ((i + j) % 2 == 0) {
                     SetLive(i, j, em);
                 }

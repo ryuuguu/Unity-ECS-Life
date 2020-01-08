@@ -100,7 +100,7 @@ public class UpdateDisplayChangedSystem : JobComponentSystem {
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
         Entities
             .WithoutBurst()
-            .WithAll<ChangedTag>()
+            //.WithAll<ChangedTag>()
             .ForEach((Entity entity, int entityInQueryIndex, in Live live, in PosXY posXY) => {
               ECSGrid.ShowCell(posXY.pos, live.value ==1);  
             }).Run();
