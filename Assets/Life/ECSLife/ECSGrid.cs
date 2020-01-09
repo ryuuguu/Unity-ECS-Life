@@ -120,14 +120,18 @@ public class ECSGrid : MonoBehaviour {
                 });
                 
                 // This code is for next Tutorial
-                entityManager.AddComponentData(instance, new InitializationTag());
                 var pos = Cell2Supercell(i,j);
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
-                var entityChunk = entityManager.GetChunk(instance);
-                entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
-                    new SuperCellLives(){index = 0, changed = false,pos = pos});
                 entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
+                
+                //the chunk data has to be set after all changes to archetype of the instance
+                // for example if you call an AddComponentData after this the chunk data will be lost
+                // this makes the code very fragile so I have commented out this and instead set pos in 
+                //var entityChunk = entityManager.GetChunk(instance);
+                //entityManager.SetChunkComponentData<SuperCellLives>(entityChunk, 
+                //    new SuperCellLives(){index = 0, changed = false,pos = pos});
+                
             }
         }
         
@@ -185,7 +189,7 @@ public class ECSGrid : MonoBehaviour {
     
     private static void RunSCCommandBuffer() {
         foreach (var command in SuperCellCommandBuffer) {
-            Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
+            //Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
             _meshRenderersSC[command.pos.x,command. pos.y].enabled = command.val != 0;
             if (command.val != 0) {
                 _meshRenderersSC[command.pos.x, command.pos.y].material = materialsStatic[command.val];
@@ -196,7 +200,7 @@ public class ECSGrid : MonoBehaviour {
     
     private static void RunCellCommandBuffer() {
         foreach (var command in CellCommandBuffer) {
-            Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
+            //Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
             _meshRenderersSC[command.pos.x,command. pos.y].enabled = command.val != 0;
             
         }

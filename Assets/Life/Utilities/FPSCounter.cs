@@ -19,20 +19,15 @@ public class FPSCounter : MonoBehaviour {
     private Text _text;
     private void Start() {
         _text = GetComponent<Text>();
-        StartCoroutine(FPS());
+        //StartCoroutine(FPS());
     }
 
-    private IEnumerator FPS() {
-        for (;;) {
-            int lastFrameCount = Time.frameCount;
-            float lastTime = Time.realtimeSinceStartup;
-            yield return new WaitForSeconds(frequency);
-            float timeSpan = Time.realtimeSinceStartup - lastTime;
-            int frameCount = Time.frameCount - lastFrameCount;
+    void Update() {
+        float timeSpan = Time.deltaTime;
 
-            // Display it
-            FramesPerSec = Mathf.RoundToInt(frameCount / timeSpan);
-            _text.text = FramesPerSec.ToString() + " fps";
-        }
+        // Display it
+        FramesPerSec = Mathf.RoundToInt(1/ timeSpan);
+        _text.text = FramesPerSec.ToString() + " fps\nFrame:" + Time.frameCount;
+        
     }
 }

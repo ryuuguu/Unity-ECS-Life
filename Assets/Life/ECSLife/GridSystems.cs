@@ -10,83 +10,6 @@ using UnityEngine;
 
 
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
-[AlwaysSynchronizeSystem]
-//[UpdateAfter(typeof(UpdateDisplayChangedSystem))]
-[BurstCompile]
-public class InitializationSystem : JobComponentSystem {
-    EntityQuery m_Group;
-    protected override void OnCreate() {
-        base.OnCreate();
-        // Cached access to a set of ComponentData based on a specific query
-        m_Group = GetEntityQuery(
-            ComponentType.ReadOnly<PosXY>(),
-            ComponentType.ChunkComponent<SuperCellLives>(),
-            ComponentType.ReadOnly<InitializationTag>()
-        );
-    }
-
-    struct InitializationJob : IJobChunk {
-
-        [ReadOnly] public ArchetypeChunkComponentType<PosXY> PosXYType;
-        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
-        public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
-            var posXYs = chunk.GetNativeArray(PosXYType);
-            int2 pos = new int2();
-            pos[0] = (posXYs[0].pos.x / 2) * 2; //(0,1) -> 0, (2,3) -> 2, etc.
-            pos[1] = (posXYs[0].pos.y  / 2) * 2;
-            
-            chunk.SetChunkComponentData(SuperCellLivesType,
-                new SuperCellLives() {
-                    index = 0,
-                    changed = false,
-                    pos = pos
-                });
-        }
-    }
-
-    protected override JobHandle OnUpdate(JobHandle inputDependencies) {
-        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
-        var PosXYType = GetArchetypeChunkComponentType<PosXY>();
-
-        var job = new InitializationJob() {
-            SuperCellLivesType = SuperCellLivesType,
-            PosXYType = PosXYType
-        };
-        return job.Schedule(m_Group, inputDependencies);
-    }
-    
-}
-
-/// <summary>
-/// RemoveInitializationTagSystem
-/// removes initialization tag at the beginning of frame
-/// </summary>
-
-[AlwaysSynchronizeSystem]
-[BurstCompile]
-public class RemoveInitializationTagSystem : JobComponentSystem {
-    protected BeginSimulationEntityCommandBufferSystem m_BeginSimulationEcbSystem;
-    
-    protected override void OnCreate() {
-        base.OnCreate();
-        // Find the ECB system once and store it for later usage
-        m_BeginSimulationEcbSystem = World
-            .GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-    }
-    
-    protected override JobHandle OnUpdate(JobHandle inputDeps) {
-        var ecb = m_BeginSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
-        JobHandle jobHandle = Entities
-            .WithAll<InitializationTag>()
-            .ForEach((Entity entity, int entityInQueryIndex)=> {
-                ecb.RemoveComponent<InitializationTag>(entityInQueryIndex, entity);
-            }).Schedule( inputDeps);
-        m_BeginSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
-        return jobHandle;
-    }
-}
-
 
 /// <summary>
 /// update Live from NextState and add ChangedTag
@@ -100,7 +23,6 @@ public class GenerateNextStateSystem : JobComponentSystem {
     // For Burst or Schedule (worker thread) jobs to access data outside the a job an explicit struct with a
     // read only variable is needed
     [BurstCompile]
-    [ExcludeComponent(typeof(InitializationTag))]
     struct SetLive : IJobForEach<NextState, Live, Neighbors> {
         // liveLookup is a pointer to a native array of live components indexed by entity
         // since allows access outside set of entities being handled a single job o thread that is running 
@@ -144,14 +66,13 @@ public class GenerateNextStateSystem : JobComponentSystem {
 }
 
 
-[UpdateBefore(typeof(UpdateSuperCellLivesSystem))]
+[UpdateBefore(typeof(UpdateSuperCellIndexSystem))]
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateNextSateSystem : JobComponentSystem {
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
         
         JobHandle jobHandle = Entities
-            .WithNone<InitializationTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Live live, in  NextState nextState)=> {
                 live.value = nextState.value;
             }).Schedule( inputDeps);
@@ -241,7 +162,7 @@ public class UpdateClearChangedSystem : JobComponentSystem {
 */
 [AlwaysSynchronizeSystem]
 [BurstCompile]
-public class UpdateSuperCellLivesSystem : JobComponentSystem {
+public class UpdateSuperCellIndexSystem : JobComponentSystem {
     EntityQuery m_Group;
 
     protected override void OnCreate() {
@@ -250,8 +171,8 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
             ComponentType.ReadOnly<Live>(),
             ComponentType.ReadOnly<SubcellIndex>(),
             ComponentType.ReadOnly<PosXY>(),
-            ComponentType.ChunkComponent<SuperCellLives>(),
-            ComponentType.Exclude<InitializationTag>()
+            ComponentType.ChunkComponent<SuperCellLives>()
+            
         );
     }
     
@@ -275,9 +196,11 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
             for (int i = 0; i < 4; i++) {
                 index +=   scLives[i]<< i;
             }
+            
             var pos = new int2();
             pos[0] = (posXYs[0].pos.x / 2) * 2; //(0,1) -> 0, (2,3) -> 2, etc.
             pos[1] = (posXYs[0].pos.y  / 2) * 2;
+            
             
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
             bool changed = index != chunkData.index;
@@ -308,15 +231,15 @@ public class UpdateSuperCellLivesSystem : JobComponentSystem {
 
 
 [AlwaysSynchronizeSystem]
-[UpdateAfter(typeof(UpdateSuperCellLivesSystem))]
+[UpdateAfter(typeof(UpdateSuperCellIndexSystem))]
 public class UpdateSuperCellChangedSystem : JobComponentSystem {
     EntityQuery m_Group;
 
     protected override void OnCreate() {
         // Cached access to a set of ComponentData based on a specific query
         m_Group = GetEntityQuery(
-            ComponentType.ChunkComponentReadOnly<SuperCellLives>(),
-            ComponentType.Exclude<InitializationTag>()
+            ComponentType.ChunkComponentReadOnly<SuperCellLives>()
+           
         );
     }
     
