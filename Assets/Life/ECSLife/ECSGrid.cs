@@ -33,6 +33,10 @@ public class ECSGrid : MonoBehaviour {
     public static float zLive = -1;
 
     public void Start() {
+        // clearing buffers in case "Entering Playmode with Reload Domain disabled."
+        // is set. This experimental but is set by something in the preview packages
+        SuperCellCommandBuffer.Clear();
+        CellCommandBuffer.Clear();
         //InitDisplay();
         InitSuperCellDisplay();
         InitECS();
@@ -116,6 +120,7 @@ public class ECSGrid : MonoBehaviour {
                 });
                 
                 // This code is for next Tutorial
+                entityManager.AddComponentData(instance, new InitializationTag());
                 var pos = Cell2Supercell(i,j);
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
@@ -127,7 +132,6 @@ public class ECSGrid : MonoBehaviour {
         }
         
         InitLive(entityManager);
-
     }
     
     // This code is for next Tutorial 
@@ -141,11 +145,11 @@ public class ECSGrid : MonoBehaviour {
 
     public void InitLive(EntityManager entityManager) {
         if (stressTest) {
-            FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
+            //FlasherTest((size + 2 * Vector2Int.one) / 2, entityManager);
             BarTest( entityManager);
             //StressTest(entityManager);
         } 
-        //RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
+        RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
         
     }
     

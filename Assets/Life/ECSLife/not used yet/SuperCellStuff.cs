@@ -50,4 +50,8 @@ public struct DebugSuperCellLives : IComponentData {
     public int2 pos;
 } 
 
-
+/// <summary>
+/// InitializationTag
+/// used to mark entity is not yet initialized
+/// </summary>
+public struct InitializationTag : IComponentData {}
