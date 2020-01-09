@@ -8,7 +8,7 @@ using Unity.Mathematics;
 
 /// <summary>
 /// SubcellIndex
-///   index of cell in SuperCellLives.lives
+///   index of a cell in SuperCellLives.lives
 /// </summary>
 public struct SubcellIndex : IComponentData {
     public int index;
@@ -17,6 +17,7 @@ public struct SubcellIndex : IComponentData {
 /// <summary>
 /// SharedData Component
 ///   chunks cells into correct chunk
+///    pos is only used to decide what cell goes into which Chunk
 /// </summary>
 public struct SuperCellXY : ISharedComponentData {
     public int2 pos; // these coordinates are the xMin, yMin corner
@@ -29,10 +30,6 @@ public struct SuperCellXY : ISharedComponentData {
 ///  uses lives of cells to calculate image index 
 /// </summary>
 public struct SuperCellLives : IComponentData {
-    //public int4 lives;  //was only used for creating index and debugging so removed
-    // live values for 
-    // p = SuperCellXY.pos
-    // (p+(0,0), p+(0,1), p+(1,0), p+(1,1)
     public int index; //index of image to be displayed
     public bool changed;
     public int2 pos;

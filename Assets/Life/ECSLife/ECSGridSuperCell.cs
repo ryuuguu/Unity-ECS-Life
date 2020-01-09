@@ -159,7 +159,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         SuperCellCommandBuffer.Clear();
     }
     
-    
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
         SetLive(center.x, center.y, entityManager);
         SetLive(center.x, center.y+1, entityManager);

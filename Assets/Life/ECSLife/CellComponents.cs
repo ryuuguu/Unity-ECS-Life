@@ -8,7 +8,6 @@ using Unity.Mathematics;
 // made states int for simpler code 
 // maybe making them bool for better packing would be faster 
 
-
 [GenerateAuthoringComponent]
 public struct Live : IComponentData {
     public int value;
@@ -17,7 +16,6 @@ public struct Live : IComponentData {
 public struct NextState : IComponentData {
     public int value;
 }
-
 
 //this might be better as an array but arrays are not blitable
 // components fields must be blitable
@@ -37,12 +35,9 @@ public struct Neighbors : IComponentData {
 public struct ChangedTag : IComponentData { }
 
 /// <summary>
-/// used to make it easier to check SuperCellLive values are being set correctly
+/// PosXY
+/// used to track cell location as cells no longer have a Translation
 /// </summary>
 public struct PosXY : IComponentData {
     public int2 pos;
-}
-
-public struct debugFilterCount : IComponentData {
-    public int Value;
 }
