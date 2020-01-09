@@ -10,7 +10,7 @@ using UnityEngine;
 
 
 
-
+/*
 /// <summary>
 /// update Live from NextState and add ChangedTag
 /// </summary>
@@ -80,6 +80,7 @@ public class UpdateNextSateSystem : JobComponentSystem {
     }
 }
 
+*/
 /*
 [AlwaysSynchronizeSystem]
 [BurstCompile]
@@ -160,6 +161,7 @@ public class UpdateClearChangedSystem : JobComponentSystem {
     }
 }
 */
+/*
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateSuperCellIndexSystem : JobComponentSystem {
@@ -267,8 +269,8 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
     }
     
 }
-
-
+*/
+/*
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
 /// </summary>
@@ -334,5 +336,5 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         return job.Schedule(m_Group, inputDependencies);
     }
 }
-
+*/
 
