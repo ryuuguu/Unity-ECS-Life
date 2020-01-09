@@ -127,7 +127,11 @@ public class UpdateSuperCellIndexSystem : JobComponentSystem {
             chunk.SetChunkComponentData(SuperCellLivesType,
                 new SuperCellLives() {
                     index = index,
-                    changed = changed,
+                    changed = changed, 
+                    // for faster less robust code uncomment the 3 lines at the end of
+                    // ECSGridSuperCell.InitECS() around SetChunkComponentData<SuperCellLives>
+                    // uncomment the next line and comment the one after 
+                    //pos = chunkdata.pos
                     pos = pos
                 });
         }

@@ -96,7 +96,7 @@ public class ECSGridSuperCell : MonoBehaviour {
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
                 
-                //ChunkData does not disaplys properly in the debugger 
+                //ChunkData does not displays properly in the debugger 
                 //uncomment this and SuperCellLives data will be copied to this component 
                 // which is not a ChunkComponent so displays properly in the debugger
                 //entityManager.AddComponentData<DebugSuperCellLives>(instance, new DebugSuperCellLives());
