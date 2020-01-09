@@ -272,6 +272,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
 /// </summary>
+[UpdateAfter(typeof(UpdateSuperCellIndexSystem))]
 [AlwaysSynchronizeSystem]
 [BurstCompile]
 public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
@@ -293,14 +294,8 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
 
             var debugSuperCellLives = chunk.GetNativeArray(DebugSuperCellLivesType);
-            
-            int sharedComponentIndex = chunk.GetSharedComponentIndex(superCellSharedType);
-            int numSc = chunk.NumSharedComponents();
-            //var x = chunk.GetSharedComponentData()
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
             
-            //int uniqueIndex = chunkData.indices.IndexOf(sharedComponentIndex);
-            //chunk.GetSharedComponentData<SuperCellXY>()
             for (var i = 0; i < chunk.Count; i++) {
                 int4 livesDecoded = new int4();
                 int encoded = chunkData.index;

@@ -27,7 +27,6 @@ public class ECSGridSuperCell : MonoBehaviour {
     private static MeshRenderer[,] _meshRenderersSC;
     private static MeshRenderer[,] _meshRenderers;
     private static List<ShowSuperCellData> SuperCellCommandBuffer = new List<ShowSuperCellData>();
-    private static List<ShowSuperCellData> CellCommandBuffer = new List<ShowSuperCellData>();
 
     public float zDeadSetter;
     public static float zLive = -1;
@@ -36,7 +35,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         // clearing buffers in case "Entering Playmode with Reload Domain disabled."
         // is set. This experimental but is set by something in the preview packages
         SuperCellCommandBuffer.Clear();
-        CellCommandBuffer.Clear();
         //InitDisplay();
         InitSuperCellDisplay();
         InitECS();
@@ -202,14 +200,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         SuperCellCommandBuffer.Clear();
     }
     
-    private static void RunCellCommandBuffer() {
-        foreach (var command in CellCommandBuffer) {
-            //Debug.Log(" ShowSuperCell: "+ command.pos + " : "+ command.val);
-            _meshRenderersSC[command.pos.x,command. pos.y].enabled = command.val != 0;
-            
-        }
-        CellCommandBuffer.Clear();
-    }
     
     void RPentonomio(Vector2Int center, EntityManager entityManager) {
         SetLive(center.x, center.y, entityManager);
