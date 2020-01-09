@@ -10,10 +10,7 @@ using UnityEngine.Analytics;
 public class ECSGridSuperCell : MonoBehaviour {
     public Vector2Int size = new Vector2Int(10,10);
     public bool stressTest = false;
-    public float worldSize = 10f;
-    public Transform holder;
     public Transform holderSC;
-    public GameObject prefabCell;
     public GameObject prefabMesh;
     public Vector2 _offset;
     public Vector2 _scale ;
@@ -25,10 +22,8 @@ public class ECSGridSuperCell : MonoBehaviour {
     
     Entity[,] _cells;
     private static MeshRenderer[,] _meshRenderersSC;
-    private static MeshRenderer[,] _meshRenderers;
     private static List<ShowSuperCellData> SuperCellCommandBuffer = new List<ShowSuperCellData>();
 
-    public float zDeadSetter;
     public static float zLive = -1;
 
     public void Start() {
@@ -44,26 +39,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         RunSCCommandBuffer();
         //RunCellCommandBuffer();
     }
-
-    
-
-    public void InitDisplay() {
-        _scale = ( Vector2.one / size);
-        _offset = ((-1 * Vector2.one) + _scale)/2;
-        _meshRenderers = new MeshRenderer[size.x+2,size.y+2];
-        var cellLocalScale  = new Vector3(_scale.x,_scale.y,_scale.x);
-        for (int i = 0; i < size.x+2; i++) {
-            for (int j = 0; j < size.y+2; j++) {
-                var c = Instantiate(prefabMesh, holder);
-                var pos = new Vector3((i-1) * _scale.x + _offset.x, (j-1) * _scale.y + _offset.y, zLive);
-                c.transform.localScale = cellLocalScale; 
-                c.transform.localPosition = pos;
-                c.name += new Vector2Int(i, j);
-                _meshRenderers[i,j] = c.GetComponent<MeshRenderer>();
-            }
-        }
-    }
-    
     
     public void InitSuperCellDisplay() {
         _scale = ( Vector2.one / size);
@@ -82,7 +57,6 @@ public class ECSGridSuperCell : MonoBehaviour {
                 c.transform.localPosition = pos;
                 c.name += new Vector2Int(i, j);
                 _meshRenderersSC[i,j] = c.GetComponent<MeshRenderer>();
-                
             }
         }
     }
@@ -156,7 +130,6 @@ public class ECSGridSuperCell : MonoBehaviour {
             //StressTest(entityManager);
         } 
         RPentonomio((size + 2 * Vector2Int.one) / 2, entityManager);
-        
     }
     
     private void SetLive(int i, int j, EntityManager entityManager) {
@@ -164,29 +137,15 @@ public class ECSGridSuperCell : MonoBehaviour {
             var instance = _cells[i, j];
             entityManager.SetComponentData(instance, new Live {value = 1});
             entityManager.SetComponentData(instance, new NextState() {value = 0});
-        }
-        else {
-            ShowCell(new int2(i, j), true);
-        }
+        } 
     }
 
-    public static void ShowCell(int2 pos, bool val) {
-        
-        var command = new ShowSuperCellData() {
-            pos = pos,
-            val = val ? 0 : 1
-        };
-        _meshRenderers[pos.x, pos.y].enabled = val;
-        //Debug.Log(" ShowCell: "+ pos + " : "+ val);
-    }
-    
     public static void ShowSuperCell(int2 pos,int val) {
         var command = new ShowSuperCellData() {
             pos = pos,
             val = val
         };
         SuperCellCommandBuffer.Add(command);
-        
     }
     
     private static void RunSCCommandBuffer() {
@@ -213,7 +172,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         SetLive(center.x, center.y, entityManager);
         SetLive(center.x, center.y+1, entityManager);
         SetLive(center.x, center.y-1, entityManager);
-        
     }
     
     void BarTest(EntityManager em) {
