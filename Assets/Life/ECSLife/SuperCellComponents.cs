@@ -4,15 +4,6 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-//This stuff, including the commented out JobSystems, works but is not needed till next Tutorial
-
-/// <summary>
-/// SubcellIndex
-///   index of a cell in SuperCellLives.lives
-/// </summary>
-public struct SubcellIndex : IComponentData {
-    public int index;
-}
 
 /// <summary>
 /// SharedData Component
@@ -46,3 +37,11 @@ public struct DebugSuperCellLives : IComponentData {
     public bool changed;
     public int2 pos;
 } 
+
+/// <summary>
+/// SubcellIndex
+///   relative pos of a cell in its SuperCell
+/// </summary>
+public struct SubcellIndex : IComponentData {
+    public int index;
+}

@@ -37,7 +37,6 @@ public class ECSGridSuperCell : MonoBehaviour {
 
     private void Update() {
         RunSCCommandBuffer();
-        //RunCellCommandBuffer();
     }
     
     public void InitSuperCellDisplay() {
@@ -91,7 +90,6 @@ public class ECSGridSuperCell : MonoBehaviour {
                     sw = _cells[i + 1, j - 1], s = _cells[i + 1, j], se =  _cells[i + 1, j + 1]
                 });
                 
-                // This code is for next Tutorial
                 var pos = Cell2Supercell(i,j);
                 entityManager.AddSharedComponentData(instance, new SuperCellXY() {pos = pos});
                 entityManager.AddChunkComponentData<SuperCellLives>(instance);
@@ -114,7 +112,6 @@ public class ECSGridSuperCell : MonoBehaviour {
         InitLive(entityManager);
     }
     
-    // This code is for next Tutorial 
     public int2 Cell2Supercell(int i, int j) {
         var pos = new int2();
         pos[0] = (i  / 2) * 2; //(0,1) -> 0, (2,3) -> 2, etc.
