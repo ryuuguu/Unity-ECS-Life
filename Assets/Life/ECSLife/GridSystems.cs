@@ -250,7 +250,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
             if (chunkData.changed) {
-               ECSGrid.ShowSuperCell(chunkData.pos, chunkData.index);
+               ECSGridSuperCell.ShowSuperCell(chunkData.pos, chunkData.index);
             }
         }
     }
