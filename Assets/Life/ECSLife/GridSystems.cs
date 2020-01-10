@@ -77,6 +77,7 @@ public class UpdateNextSateSystem : JobComponentSystem {
         return jobHandle;
     }
 }
+
 /// <summary>
 /// UpdateSuperCellIndexSystem
 ///     Calculate new image index for SuperCellLives
