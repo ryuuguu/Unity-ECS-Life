@@ -70,11 +70,15 @@ public class GenerateNextStateSystem : JobComponentSystem {
 public class UpdateNextSateSystem : JobComponentSystem {
     protected override JobHandle OnUpdate(JobHandle inputDeps) {
         
-        JobHandle jobHandle = Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref Live live, in  NextState nextState)=> {
-                live.value = nextState.value;
-            }).Schedule( inputDeps);
-        return jobHandle;
+        Entities
+            .WithoutBurst()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Live live, in  NextState nextState, in PosXY posXY)=> {
+                if (live.value != nextState.value) {
+                    live.value = nextState.value;
+                    ECSGridSCDeaths.ShowCell(posXY.pos, live.value==1);
+                }
+            }).Run();
+        return default;
     }
 }
 
@@ -179,7 +183,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
             if (chunkData.changed) {
-               ECSGridSuperCell.ShowSuperCell(chunkData.pos, chunkData.index);
+               //ECSGridSuperCell.ShowSuperCell(chunkData.pos, chunkData.index);
             }
         }
     }
@@ -196,7 +200,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
     }
     
 }
-
+/*
 /// <summary>
 /// Copies ChunkComponent to instance component so it can checked in debugger
 /// </summary>
@@ -239,8 +243,6 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
                 };
             }
         }
-
-
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies) {
@@ -257,5 +259,5 @@ public class UpdateDebugSuperCellLivesSystem : JobComponentSystem {
         return job.Schedule(m_Group, inputDependencies);
     }
 }
-
+*/
 

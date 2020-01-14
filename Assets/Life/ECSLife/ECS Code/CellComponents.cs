@@ -13,6 +13,7 @@ public struct Live : IComponentData {
     public int value;
 }
 
+
 public struct NextState : IComponentData {
     public int value;
 }
@@ -32,7 +33,10 @@ public struct Neighbors : IComponentData {
 }
 
 
-public struct ChangedTag : IComponentData { }
+public struct SuperCellDisplay : IComponentData {
+    public bool changed;
+    public int deaths;
+}
 
 /// <summary>
 /// PosXY
