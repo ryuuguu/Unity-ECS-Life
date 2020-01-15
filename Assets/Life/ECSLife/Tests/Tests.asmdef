@@ -11,8 +11,7 @@
         "Unity.Entities.Tests"
     ],
     "includePlatforms": [
-        "Editor",
-        "LinuxStandalone64"
+        "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

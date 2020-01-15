@@ -1,20 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
-using UnityEngine;
+﻿using NUnit.Framework;
 using Unity.Entities;
 using Unity.Entities.Tests;
-using UnityEngine.EventSystems;
-using Unity.Transforms;
 using Unity.Mathematics;
 
 
 namespace Tests {
     [TestFixture]
-    [Category("ECS Test")]
+    //[Category("ECS Test")]
     public class GenerateNextStateSystemTests:ECSTestsFixture {
         [Test]
-        public void WhenDeadAndNEqualsThan3() {
+        public void WhenDeadAndNEquals3() {
             var _cells = new Entity[3,3];
         
             for (int x = 0; x < 3; x++) {
