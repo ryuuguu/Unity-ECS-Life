@@ -104,10 +104,10 @@ public class UpdateSuperCellIndexSystem : JobComponentSystem {
     }
     
     struct SuperCellIndexJob : IJobChunk {
-        [ReadOnly]public ArchetypeChunkComponentType<Live> LiveType;
-        [ReadOnly]public ArchetypeChunkComponentType<SubcellIndex> SubcellIndexType;
-        [ReadOnly]public ArchetypeChunkComponentType<PosXY> PosXYType;
-        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+        [ReadOnly]public ComponentTypeHandle<Live> LiveType;
+        [ReadOnly]public ComponentTypeHandle<SubcellIndex> SubcellIndexType;
+        [ReadOnly]public ComponentTypeHandle<PosXY> PosXYType;
+        public ComponentTypeHandle<SuperCellLives> SuperCellLivesType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var lives = chunk.GetNativeArray(LiveType);
@@ -143,10 +143,10 @@ public class UpdateSuperCellIndexSystem : JobComponentSystem {
     }
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies) {
-        var LiveType = GetArchetypeChunkComponentType<Live>(true);
-        var SubcellIndexType = GetArchetypeChunkComponentType<SubcellIndex>(false);
-        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
-        var PosXYType = GetArchetypeChunkComponentType<PosXY>();
+        var LiveType = GetComponentTypeHandle<Live>(true);
+        var SubcellIndexType = GetComponentTypeHandle<SubcellIndex>(false);
+        var SuperCellLivesType = GetComponentTypeHandle<SuperCellLives>();
+        var PosXYType = GetComponentTypeHandle<PosXY>();
 
         var job = new SuperCellIndexJob() {
             SubcellIndexType = SubcellIndexType,
@@ -178,7 +178,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
     
     struct SuperCellDisplayJob : IJobChunk {
         
-        public ArchetypeChunkComponentType<SuperCellLives> SuperCellLivesType;
+        public ComponentTypeHandle<SuperCellLives> SuperCellLivesType;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex) {
             var chunkData = chunk.GetChunkComponentData(SuperCellLivesType);
@@ -190,7 +190,7 @@ public class UpdateSuperCellChangedSystem : JobComponentSystem {
 
     protected override JobHandle OnUpdate(JobHandle inputDependencies) {
         
-        var SuperCellLivesType = GetArchetypeChunkComponentType<SuperCellLives>();
+        var SuperCellLivesType = GetComponentTypeHandle<SuperCellLives>();
 
         var job = new SuperCellDisplayJob() {
             SuperCellLivesType = SuperCellLivesType
